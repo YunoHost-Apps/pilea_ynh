@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# Exit on command errors and treat unset variables as an error
+set -eu
+
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
+
+if [ ! -e _common.sh ]; then
+	# Fetch helpers file if not in current directory
+	cp ../settings/scripts/_common.sh ./_common.sh
+	chmod a+rx _common.sh
+fi
+source _common.sh
+source /usr/share/yunohost/helpers
+
+#=================================================
+# LOAD SETTINGS
+#=================================================
+
+app=$YNH_APP_INSTANCE_NAME
+
+domain=$(ynh_app_setting_get $app domain)
+final_path=$(ynh_app_setting_get $app final_path)
+db_name=$(ynh_app_setting_get $app db_name)
+
+#=================================================
+# STANDARD BACKUP STEPS
+#=================================================
+# BACKUP APP MAIN DIR
+#=================================================
+
+CHECK_SIZE "$final_path"
+ynh_backup "$final_path"
+
+#=================================================
+# BACKUP NGINX CONFIGURATION
+#=================================================
+
+ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"
+
+#=================================================
+# BACKUP PHP-FPM CONFIGURATION
+#=================================================
+
+ynh_backup "/etc/php5/fpm/pool.d/$app.conf"
+ynh_backup "/etc/php5/fpm/conf.d/20-$app.ini"
+
+#=================================================
+# BACKUP MYSQL DB
+#=================================================
+
+ynh_mysql_dump_db "$db_name" > db.sql
+CHECK_SIZE "db.sql"

@@ -1,0 +1,136 @@
+#!/bin/bash
+
+# Exit on command errors and treat unset variables as an error
+set -eu
+#=================================================
+# GENERIC STARTING
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
+
+source _common.sh
+source /usr/share/yunohost/helpers
+
+#=================================================
+# LOAD SETTINGS
+#=================================================
+# Set app specific variables
+app=$YNH_APP_INSTANCE_NAME
+
+# Check destination directory
+DESTDIR="/var/www/$app"
+[[ ! -d $DESTDIR ]] && ynh_die \
+"The destination directory '$DESTDIR' does not exist.\
+ The app is not correctly installed, you should remove it first."
+
+# Retrieve arguments
+domain=$(ynh_app_setting_get "$app" domain)
+path_url=$(ynh_app_setting_get "$app" path_url)
+# Compatibility with previous version
+if [ -z "$path_url" ] ; then
+  path_url=$(ynh_app_setting_get "$app" path)
+  ynh_app_setting_set $app path_url "$path_url"
+fi
+path_url=$(ynh_normalize_url_path $path_url)
+db_pwd=$(ynh_app_setting_get "$app" mysqlpwd)
+deskey=$(ynh_app_setting_get "$app" deskey)
+final_path=$(ynh_app_setting_get "$app" final_path)
+# Compatibility with previous version
+if [ -z "$final_path" ] ; then
+  final_path="/var/www/$app"
+  ynh_app_setting_set $app final_path "$final_path"
+fi
+
+db_name=$(ynh_app_setting_get "$app" db_name)
+# Compatibility with previous version
+if [ -z "$db_name" ] ; then
+  db_name=$app
+  ynh_app_setting_set "$app" db_name "$db_name"
+fi
+db_user="$db_name"
+
+#=================================================
+# MANAGE SCRIPT FAILURE
+#=================================================
+
+# Use prior backup and restore on error only if backup feature
+# exists on installed instance
+if [ -f "/etc/yunohost/apps/$app/scripts/backup" ] ; then
+  ynh_backup_before_upgrade # Backup the current version of the app
+  ynh_clean_setup () {
+      ynh_backup_after_failed_upgrade
+  }
+  ynh_abort_if_errors	# Stop script if an error is detected
+fi
+
+#=================================================
+# INSTALL DEPENDENCIES
+#=================================================
+
+ynh_install_app_dependencies "$PKG_DEPENDENCIES"
+
+#=================================================
+# DOWNLOAD, CHECK AND UNPACK SOURCE
+#=================================================
+
+# Create tmp directory and fetch app inside
+TMPDIR=$(ynh_mkdir_tmp)
+ynh_setup_source "$TMPDIR"
+
+#=================================================
+# CREATE DEDICATED USER
+#=================================================
+
+ynh_system_user_create $app # Create dedicated user if not existing
+
+#=================================================
+# SPECIFIC SETUP
+#=================================================
+
+# Copy and set Pilea dist configuration
+wb_conf="${TMPDIR}/app/config/parameters.yml"
+cp ${TMPDIR}/app/config/parameters.yml.dist $wb_conf
+
+ynh_replace_string "database_name: pilea" "database_name:  ${db_name}" "$wb_conf"
+ynh_replace_string "database_user: root" "database_user: ${db_user}" "$wb_conf"
+ynh_replace_string "database_password: ~" "database_password: ${db_pwd}" "$wb_conf"
+ynh_replace_string "secret: ThisTokenIsNotSoSecretChangeIt" "secret: ${deskey}" "$wb_conf"
+
+# Replace files and set permissions
+ynh_secure_remove "${final_path}/var/cache"
+mkdir "${final_path}/var/cache"
+cp -a $TMPDIR/. "${final_path}"
+chown -R $app: "${final_path}"
+chmod 755 $final_path
+
+# Upgrade database and clear the cache
+exec_console $app "${final_path}" doctrine:migrations:migrate
+exec_console $app "${final_path}" cache:clear
+
+#=================================================
+# NGINX CONFIGURATION
+#=================================================
+
+ynh_add_nginx_config
+if [ "$path_url" = "/" ]
+then
+  # Replace "//" location (due to nginx template)
+  # Prevent from replacing in "http://" expressions by excluding ":" as preceding character
+  sed --in-place "s@\([^:]\)//@\1/@g" /etc/nginx/conf.d/$domain.d/$app.conf
+else
+  # Move prefix comment #for-subdir at end of lines
+  sed --in-place "s/#for-subdir\(.*\)/\1 #for-subdir/g" /etc/nginx/conf.d/$domain.d/$app.conf
+fi
+ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
+
+# Copy and set php-fpm configuration
+ynh_add_fpm_config
+
+# Set SSOwat rules
+ynh_app_setting_set "$app" unprotected_uris "/"
+
+#=================================================
+# RELOAD NGINX
+#=================================================
+systemctl restart php5-fpm
+systemctl reload nginx
