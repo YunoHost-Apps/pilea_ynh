@@ -110,7 +110,7 @@ chown -R $app: $final_path
 chmod 755 $final_path
 
 # Install dependencies and Pilea
-exec_console $app "$final_path" pilea:install $app
+exec_console $app "$final_path" pilea:install "$app"
 
 #=================================================
 # NGINX CONFIGURATION

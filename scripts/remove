@@ -43,6 +43,11 @@ ynh_mysql_remove_db "$app" "$db_name"
 #=================================================
 
 ynh_secure_remove "/var/www/$app"
+#=================================================
+# REMOVE CRON JOB
+#=================================================
+
+ynh_secure_remove "/etc/cron.d/$app"
 
 #=================================================
 # REMOVE NGINX AND PHP-FPM CONFIGURATION
