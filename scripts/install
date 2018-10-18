@@ -48,6 +48,7 @@ ynh_webpath_register $app $domain $path_url
 ynh_app_setting_set $app domain "$domain"
 ynh_app_setting_set $app path_url "$path_url"
 ynh_app_setting_set $app admin "$admin"
+ynh_app_setting_set $app is_public $is_public
 
 #=================================================
 # STANDARD MODIFICATIONS
@@ -131,8 +132,15 @@ ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
 # Copy and set php-fpm configuration
 ynh_add_fpm_config
 
-# Set SSOwat rules
-ynh_app_setting_set "$app" unprotected_uris "/"
+#=================================================
+# SETUP SSOWAT
+#=================================================
+
+# Make app public if necessary
+if [ $is_public -eq 1 ]
+then
+  ynh_app_setting_set $app skipped_uris "/"
+fi
 
 #=================================================
 # RELOAD NGINX
