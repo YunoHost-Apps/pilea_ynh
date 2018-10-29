@@ -72,6 +72,7 @@ ynh_app_setting_set "$app" db_name "$db_name"
 
 # Initialize database
 ynh_mysql_setup_db "$db_user" "$db_name"
+
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
@@ -85,13 +86,52 @@ ynh_setup_source "$TMPDIR"
 # CREATE DEDICATED USER
 #=================================================
 
-ynh_system_user_create $app	# Create a dedicated system user
+ynh_system_user_create $app # Create a dedicated system user
+
+#=================================================
+# NGINX CONFIGURATION
+#=================================================
+
+ynh_add_nginx_config
+if [ "$path_url" = "/" ]
+then
+  # Replace "//" location (due to nginx template)
+  # Prevent from replacing in "http://" expressions by excluding ":" as preceding character
+  sed --in-place "s@\([^:]\)//@\1/@g" /etc/nginx/conf.d/$domain.d/$app.conf
+else
+  # Move prefix comment #for-subdir at end of lines
+  sed --in-place "s/#for-subdir\(.*\)/\1 #for-subdir/g" /etc/nginx/conf.d/$domain.d/$app.conf
+fi
+ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
+
+
+#=================================================
+# PHP-FPM CONFIGURATION
+#=================================================.
+
+# Copy and set php-fpm configuration
+ynh_add_fpm_config
+
+#=================================================
+# SETUP SSOWAT
+#=================================================
+
+# Make app public if necessary
+if [ $is_public -eq 1 ]
+then
+  ynh_app_setting_set $app skipped_uris "/"
+fi
 
 #=================================================
 # SPECIFIC SETUP
 #=================================================
+# INSTALL AND INIT COMPOSER
+#=================================================
+init_composer "$final_path"
 
-# Copy and set Pilea dist configuration
+#=================================================
+# CONFIGURE & INSTALL PILEA
+#=================================================
 wb_conf="${TMPDIR}/app/config/parameters.yml"
 cp ${TMPDIR}/app/config/parameters.yml.dist $wb_conf
 
@@ -113,34 +153,8 @@ chmod 755 $final_path
 # Install dependencies and Pilea
 exec_console $app "$final_path" pilea:install "$app"
 
-#=================================================
-# NGINX CONFIGURATION
-#=================================================
-
-ynh_add_nginx_config
-if [ "$path_url" = "/" ]
-then
-  # Replace "//" location (due to nginx template)
-  # Prevent from replacing in "http://" expressions by excluding ":" as preceding character
-  sed --in-place "s@\([^:]\)//@\1/@g" /etc/nginx/conf.d/$domain.d/$app.conf
-else
-  # Move prefix comment #for-subdir at end of lines
-  sed --in-place "s/#for-subdir\(.*\)/\1 #for-subdir/g" /etc/nginx/conf.d/$domain.d/$app.conf
-fi
-ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
-
-# Copy and set php-fpm configuration
-ynh_add_fpm_config
-
-#=================================================
-# SETUP SSOWAT
-#=================================================
-
-# Make app public if necessary
-if [ $is_public -eq 1 ]
-then
-  ynh_app_setting_set $app skipped_uris "/"
-fi
+# Clear cache
+exec_console $app "$final_path" cache:clear -e prod
 
 #=================================================
 # RELOAD NGINX

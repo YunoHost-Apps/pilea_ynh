@@ -84,7 +84,54 @@ ynh_setup_source "$TMPDIR"
 ynh_system_user_create $app # Create dedicated user if not existing
 
 #=================================================
+# NGINX CONFIGURATION
+#=================================================
+
+ynh_add_nginx_config
+if [ "$path_url" = "/" ]
+then
+  # Replace "//" location (due to nginx template)
+  # Prevent from replacing in "http://" expressions by excluding ":" as preceding character
+  sed --in-place "s@\([^:]\)//@\1/@g" /etc/nginx/conf.d/$domain.d/$app.conf
+else
+  # Move prefix comment #for-subdir at end of lines
+  sed --in-place "s/#for-subdir\(.*\)/\1 #for-subdir/g" /etc/nginx/conf.d/$domain.d/$app.conf
+fi
+ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
+
+
+#=================================================
+# PHP-FPM CONFIGURATION
+#=================================================.
+
+# Copy and set php-fpm configuration
+ynh_add_fpm_config
+
+#=================================================
+# SETUP SSOWAT
+#=================================================
+
+# Make app public if necessary
+if [ $is_public -eq 1 ]
+then
+  ynh_app_setting_set $app skipped_uris "/"
+fi
+
+#=================================================
 # SPECIFIC SETUP
+#=================================================
+# UPDATE DEPENDENCIES WITH COMPOSER
+#=================================================
+
+# Check if dependencies need to be updated with composer
+if [ -f "${final_path}/composer.json" ]; then
+  exec_composer "${final_path}" install --no-dev --prefer-dist
+else
+  init_composer "${final_path}"
+fi
+
+#=================================================
+# CONFIGURE & UPDATE PILEA
 #=================================================
 
 # Copy and set Pilea dist configuration
@@ -106,28 +153,6 @@ chmod 755 $final_path
 # Upgrade database and clear the cache
 exec_console $app "${final_path}" doctrine:migrations:migrate
 exec_console $app "${final_path}" cache:clear
-
-#=================================================
-# NGINX CONFIGURATION
-#=================================================
-
-ynh_add_nginx_config
-if [ "$path_url" = "/" ]
-then
-  # Replace "//" location (due to nginx template)
-  # Prevent from replacing in "http://" expressions by excluding ":" as preceding character
-  sed --in-place "s@\([^:]\)//@\1/@g" /etc/nginx/conf.d/$domain.d/$app.conf
-else
-  # Move prefix comment #for-subdir at end of lines
-  sed --in-place "s/#for-subdir\(.*\)/\1 #for-subdir/g" /etc/nginx/conf.d/$domain.d/$app.conf
-fi
-ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
-
-# Copy and set php-fpm configuration
-ynh_add_fpm_config
-
-# Set SSOwat rules
-ynh_app_setting_set "$app" unprotected_uris "/"
 
 #=================================================
 # RELOAD NGINX
