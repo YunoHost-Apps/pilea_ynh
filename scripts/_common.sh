@@ -79,8 +79,8 @@ init_composer() {
   cp "${destdir}/composer.json-dist" "${destdir}/composer.json"
 
   # update dependencies to create composer.lock
-  exec_composer "$destdir" install --no-dev \
-    || ynh_die "Unable to install Pilea core dependencies"
+  exec_composer "$destdir" install \
+    || ynh_die "Unable to install Pilea Composer dependencies"
 }
 
 

@@ -26,6 +26,7 @@ app=$YNH_APP_INSTANCE_NAME
 domain=$YNH_APP_ARG_DOMAIN
 path_url=$YNH_APP_ARG_PATH
 admin=$YNH_APP_ARG_ADMIN
+is_public=$YNH_APP_ARG_IS_PUBLIC
 
 #=================================================
 # CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
@@ -48,7 +49,7 @@ ynh_webpath_register $app $domain $path_url
 ynh_app_setting_set $app domain "$domain"
 ynh_app_setting_set $app path_url "$path_url"
 ynh_app_setting_set $app admin "$admin"
-ynh_app_setting_set $app is_public $is_public
+ynh_app_setting_set $app is_public "$is_public"
 
 #=================================================
 # STANDARD MODIFICATIONS
@@ -127,21 +128,21 @@ fi
 #=================================================
 # INSTALL AND INIT COMPOSER
 #=================================================
-init_composer "$final_path"
+init_composer "$TMPDIR"
 
 #=================================================
 # CONFIGURE & INSTALL PILEA
 #=================================================
-wb_conf="${TMPDIR}/app/config/parameters.yml"
-cp ${TMPDIR}/app/config/parameters.yml.dist $wb_conf
+pilea_conf="${TMPDIR}/app/config/parameters.yml"
+cp ${TMPDIR}/app/config/parameters.yml.dist $pilea_conf
 
-ynh_replace_string "database_name: pilea" "database_name:  ${db_name}" "$wb_conf"
-ynh_replace_string "database_user: root" "database_user: ${db_user}" "$wb_conf"
-ynh_replace_string "database_password: ~" "database_password: ${db_pwd}" "$wb_conf"
-ynh_replace_string "secret: ThisTokenIsNotSoSecretChangeIt" "secret: ${deskey}" "$wb_conf"
+ynh_replace_string "database_name: pilea" "database_name:  ${db_name}" "$pilea_conf"
+ynh_replace_string "database_user: root" "database_user: ${db_user}" "$pilea_conf"
+ynh_replace_string "database_password: ~" "database_password: ${db_pwd}" "$pilea_conf"
+ynh_replace_string "secret: ThisTokenIsNotSoSecretChangeIt" "secret: ${deskey}" "$pilea_conf"
 
 # Restrict rights to Pilea user only
-chmod 600 "$wb_conf"
+chmod 600 "$pilea_conf"
 
 # Install files and set permissions
 mv "$TMPDIR" "$final_path"
@@ -153,8 +154,14 @@ chmod 755 $final_path
 # Install dependencies and Pilea
 exec_console $app "$final_path" pilea:install "$app"
 
-# Clear cache
-exec_console $app "$final_path" cache:clear -e prod
+# Set up cron job
+cron_path="/etc/cron.d/$app"
+cp -a ../conf/pilea.cron "$cron_path"
+chown root: "$cron_path"
+chmod 644 "$cron_path"
+
+ynh_replace_string "#USER#" "$app" "$cron_path"
+ynh_replace_string "#DESTDIR#" "$final_path" "$cron_path"
 
 #=================================================
 # RELOAD NGINX
