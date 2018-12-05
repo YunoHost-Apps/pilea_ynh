@@ -150,10 +150,6 @@ cp -a $TMPDIR/. "${final_path}"
 chown -R $app: "${final_path}"
 chmod 755 $final_path
 
-# Upgrade database and clear the cache
-exec_console $app "${final_path}" doctrine:migrations:migrate
-exec_console $app "${final_path}" cache:clear
-
 #=================================================
 # RELOAD NGINX
 #=================================================
