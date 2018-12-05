@@ -75,9 +75,6 @@ init_composer() {
         php -- --quiet --install-dir="$destdir" \
     || ynh_die "Unable to install Composer"
 
-  # install composer.json
-  cp "${destdir}/composer.json-dist" "${destdir}/composer.json"
-
   # update dependencies to create composer.lock
   exec_composer "$destdir" install \
     || ynh_die "Unable to install Pilea Composer dependencies"
