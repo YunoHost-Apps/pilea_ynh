@@ -49,6 +49,8 @@ if [ -z "$db_name" ] ; then
 fi
 db_user="$db_name"
 
+is_public=$(ynh_app_setting_get "$app" is_public)
+
 #=================================================
 # MANAGE SCRIPT FAILURE
 #=================================================
