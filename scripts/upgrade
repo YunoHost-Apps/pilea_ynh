@@ -26,6 +26,7 @@ DESTDIR="/var/www/$app"
 # Retrieve arguments
 domain=$(ynh_app_setting_get "$app" domain)
 path_url=$(ynh_app_setting_get "$app" path_url)
+is_public=$(ynh_app_setting_get "$app" is_public)
 # Compatibility with previous version
 if [ -z "$path_url" ] ; then
   path_url=$(ynh_app_setting_get "$app" path)
