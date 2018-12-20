@@ -126,7 +126,7 @@ fi
 
 # Check if dependencies need to be updated with composer
 if [ -f "${final_path}/composer.json" ]; then
-  exec_composer "${final_path}" install --no-dev --prefer-dist
+  exec_composer "${final_path}" install
 else
   init_composer "${final_path}"
 fi
