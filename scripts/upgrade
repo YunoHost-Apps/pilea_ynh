@@ -68,7 +68,7 @@ fi
 # INSTALL DEPENDENCIES
 #=================================================
 
-ynh_install_app_dependencies "$PKG_DEPENDENCIES"
+ynh_install_php7
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -105,8 +105,8 @@ ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
 # PHP-FPM CONFIGURATION
 #=================================================.
 
-# Copy and set php-fpm configuration
-ynh_add_fpm_config
+# Copy and set php-fpm7.2 configuration
+ynh_add_fpm7.2_config
 
 #=================================================
 # SETUP SSOWAT
@@ -136,23 +136,31 @@ fi
 #=================================================
 
 # Copy and set Pilea dist configuration
-wb_conf="${TMPDIR}/app/config/parameters.yml"
-cp ${TMPDIR}/app/config/parameters.yml.dist $wb_conf
-
-ynh_replace_string "database_name: pilea" "database_name:  ${db_name}" "$wb_conf"
-ynh_replace_string "database_user: root" "database_user: ${db_user}" "$wb_conf"
-ynh_replace_string "database_password: ~" "database_password: ${db_pwd}" "$wb_conf"
-ynh_replace_string "secret: ThisTokenIsNotSoSecretChangeIt" "secret: ${deskey}" "$wb_conf"
+pilea_conf="${TMPDIR}/.env"
+ynh_replace_string "[database_name]" "${db_name}" "$pilea_conf"
+ynh_replace_string "[database_user]" "${db_user}" "$pilea_conf"
+ynh_replace_string "[database_password]" "${db_pwd}" "$pilea_conf"
+ynh_replace_string "[app_secret]" "${deskey}" "$pilea_conf"
 
 # Replace files and set permissions
-ynh_secure_remove "${final_path}/var/cache"
-mkdir "${final_path}/var/cache"
 cp -a $TMPDIR/. "${final_path}"
 chown -R $app: "${final_path}"
 chmod 755 $final_path
 
+# Install dependencies and Pilea
+exec_console $app "$final_path" pilea:install "$app"
+
+# Set up cron job
+cron_path="/etc/cron.d/$app"
+cp -a ../conf/pilea.cron "$cron_path"
+chown root: "$cron_path"
+chmod 644 "$cron_path"
+
+ynh_replace_string "#USER#" "$app" "$cron_path"
+ynh_replace_string "#DESTDIR#" "$final_path" "$cron_path"
+
 #=================================================
 # RELOAD NGINX
 #=================================================
-systemctl restart php5-fpm
+systemctl restart php7.2-fpm
 systemctl reload nginx

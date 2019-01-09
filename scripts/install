@@ -57,7 +57,7 @@ ynh_app_setting_set $app is_public "$is_public"
 # INSTALL DEPENDENCIES
 #=================================================
 
-ynh_install_app_dependencies "$PKG_DEPENDENCIES"
+ynh_install_php7
 
 #=================================================
 # CREATE A MYSQL DB
@@ -110,8 +110,8 @@ ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
 # PHP-FPM CONFIGURATION
 #=================================================.
 
-# Copy and set php-fpm configuration
-ynh_add_fpm_config
+# Copy and set php-fpm7.2 configuration
+ynh_add_fpm7.2_config
 
 #=================================================
 # SETUP SSOWAT
@@ -133,13 +133,11 @@ init_composer "$TMPDIR"
 #=================================================
 # CONFIGURE & INSTALL PILEA
 #=================================================
-pilea_conf="${TMPDIR}/app/config/parameters.yml"
-cp ${TMPDIR}/app/config/parameters.yml.dist $pilea_conf
-
-ynh_replace_string "database_name: pilea" "database_name:  ${db_name}" "$pilea_conf"
-ynh_replace_string "database_user: root" "database_user: ${db_user}" "$pilea_conf"
-ynh_replace_string "database_password: ~" "database_password: ${db_pwd}" "$pilea_conf"
-ynh_replace_string "secret: ThisTokenIsNotSoSecretChangeIt" "secret: ${deskey}" "$pilea_conf"
+pilea_conf="${TMPDIR}/.env"
+ynh_replace_string "[database_name]" "${db_name}" "$pilea_conf"
+ynh_replace_string "[database_user]" "${db_user}" "$pilea_conf"
+ynh_replace_string "[database_password]" "${db_pwd}" "$pilea_conf"
+ynh_replace_string "[app_secret]" "${deskey}" "$pilea_conf"
 
 # Restrict rights to Pilea user only
 chmod 600 "$pilea_conf"
@@ -166,5 +164,5 @@ ynh_replace_string "#DESTDIR#" "$final_path" "$cron_path"
 #=================================================
 # RELOAD NGINX
 #=================================================
-systemctl restart php5-fpm
+systemctl reload php7.2-fpm
 systemctl reload nginx
