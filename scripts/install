@@ -134,11 +134,15 @@ init_composer "$TMPDIR"
 # CONFIGURE & INSTALL PILEA
 #=================================================
 pilea_conf="${TMPDIR}/.env"
+cp ../conf/.env $pilea_conf
+
 ynh_replace_string "[database_name]" "${db_name}" "$pilea_conf"
 ynh_replace_string "[database_user]" "${db_user}" "$pilea_conf"
 ynh_replace_string "[database_password]" "${db_pwd}" "$pilea_conf"
 ynh_replace_string "[app_secret]" "${deskey}" "$pilea_conf"
+
 cat "$pilea_conf"
+
 # Restrict rights to Pilea user only
 chmod 600 "$pilea_conf"
 
