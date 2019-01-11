@@ -56,13 +56,12 @@ db_user="$db_name"
 
 # Use prior backup and restore on error only if backup feature
 # exists on installed instance
-if [ -f "/etc/yunohost/apps/$app/scripts/backup" ] ; then
-  ynh_backup_before_upgrade # Backup the current version of the app
-  ynh_clean_setup () {
-      ynh_restore_upgradebackup
-  }
-  ynh_abort_if_errors	# Stop script if an error is detected
-fi
+ynh_backup_before_upgrade # Backup the current version of the app
+ynh_clean_setup () {
+    ynh_restore_upgradebackup
+}
+ynh_abort_if_errors	# Stop script if an error is detected
+
 
 #=================================================
 # INSTALL DEPENDENCIES
@@ -145,7 +144,7 @@ ynh_replace_string "database_password" "${db_pwd}" "$pilea_conf"
 ynh_replace_string "app_secret" "${deskey}" "$pilea_conf"
 
 # Replace files and set permissions
-rm -rf "${final_path}"
+ynh_secure_remove "${final_path}"
 cp -a $TMPDIR/. "${final_path}"
 chown -R $app: "${final_path}"
 chmod 755 $final_path
