@@ -145,6 +145,7 @@ ynh_replace_string "database_password" "${db_pwd}" "$pilea_conf"
 ynh_replace_string "app_secret" "${deskey}" "$pilea_conf"
 
 # Replace files and set permissions
+rm -rf "${final_path}"
 cp -a $TMPDIR/. "${final_path}"
 chown -R $app: "${final_path}"
 chmod 755 $final_path
