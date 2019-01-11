@@ -125,10 +125,10 @@ fi
 #=================================================
 
 # Check if dependencies need to be updated with composer
-if [ -f "${final_path}/composer.json" ]; then
-  exec_composer "${final_path}" install
+if [ -f "${TMPDIR}/composer.json" ]; then
+  exec_composer "${TMPDIR}" install
 else
-  init_composer "${final_path}"
+  init_composer "${TMPDIR}"
 fi
 
 #=================================================
