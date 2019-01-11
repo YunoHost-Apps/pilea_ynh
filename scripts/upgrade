@@ -125,7 +125,7 @@ fi
 #=================================================
 
 # Check if dependencies need to be updated with composer
-if [ -f "${TMPDIR}/composer.json" ]; then
+if [ -f "${TMPDIR}/composer.phar" ]; then
   exec_composer "${TMPDIR}" install
 else
   init_composer "${TMPDIR}"
