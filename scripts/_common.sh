@@ -53,7 +53,7 @@ exec_composer() {
   shift 1
 
   COMPOSER_HOME="${workdir}/.composer" \
-    php "${workdir}/composer.phar" $@ \
+    /usr/bin/php7.2 "${workdir}/composer.phar" $@ \
       -d "${workdir}" --quiet --no-interaction
 }
 
@@ -65,7 +65,7 @@ init_composer() {
   # install composer
   curl -sS https://getcomposer.org/installer \
     | COMPOSER_HOME="${destdir}/.composer" \
-        php -- --quiet --install-dir="$destdir" \
+        /usr/bin/php7.2 -- --quiet --install-dir="$destdir" \
     || ynh_die "Unable to install Composer"
 
   # update dependencies to create composer.lock
@@ -134,7 +134,6 @@ ynh_add_fpm7.2_config () {
     sudo chown root: "$finalphpini"
     ynh_store_file_checksum "$finalphpini"
   fi
-  sudo systemctl reload $fpm_service
 }
 
 # Remove the dedicated php-fpm config
@@ -145,5 +144,4 @@ ynh_remove_fpm7.2_config () {
   local fpm_service=$(ynh_app_setting_get $app fpm_service)
   ynh_secure_remove "$fpm_config_dir/pool.d/$app.conf"
   ynh_secure_remove "$fpm_config_dir/conf.d/20-$app.ini" 2>&1
-  sudo systemctl reload $fpm_service
 }
