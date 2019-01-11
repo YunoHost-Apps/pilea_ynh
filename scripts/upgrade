@@ -75,7 +75,7 @@ ynh_install_php7
 #=================================================
 
 # Create tmp directory and fetch app inside
-TMPDIR=$(ynh_mkdir_tmp)
+TMPDIR=$(mktemp -d)
 ynh_setup_source "$TMPDIR"
 
 #=================================================
@@ -137,10 +137,11 @@ fi
 
 # Copy and set Pilea dist configuration
 pilea_conf="${TMPDIR}/.env"
-ynh_replace_string "[database_name]" "${db_name}" "$pilea_conf"
-ynh_replace_string "[database_user]" "${db_user}" "$pilea_conf"
-ynh_replace_string "[database_password]" "${db_pwd}" "$pilea_conf"
-ynh_replace_string "[app_secret]" "${deskey}" "$pilea_conf"
+
+ynh_replace_string "database_name" "${db_name}" "$pilea_conf"
+ynh_replace_string "database_user" "${db_user}" "$pilea_conf"
+ynh_replace_string "database_password" "${db_pwd}" "$pilea_conf"
+ynh_replace_string "app_secret" "${deskey}" "$pilea_conf"
 
 # Replace files and set permissions
 cp -a $TMPDIR/. "${final_path}"
