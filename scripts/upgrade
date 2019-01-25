@@ -62,6 +62,11 @@ ynh_clean_setup () {
 }
 ynh_abort_if_errors	# Stop script if an error is detected
 
+#=================================================
+# CHECK CURRENT PILEA VERSION
+#=================================================
+
+version=exec_console $app "$final_path" pilea:version 2> /dev/null || printf '0.2'
 
 #=================================================
 # INSTALL DEPENDENCIES
@@ -107,6 +112,12 @@ ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
 # Copy and set php-fpm7.2 configuration
 ynh_add_fpm7.2_config
 
+# If we upgrade from version 0.2, delete php7.0 config
+if [ "$version" = "0.2" ]
+then
+  ynh_remove_fpm_config
+fi
+
 #=================================================
 # SETUP SSOWAT
 #=================================================
@@ -151,7 +162,7 @@ chmod 755 $final_path
 
 # Install dependencies and Pilea
 exec_console $app "$final_path" cache:clear
-exec_console $app "$final_path" pilea:install "$app"
+exec_console $app "$final_path" doctrine:migrations:migrate -n
 
 # Set up cron job
 cron_path="/etc/cron.d/$app"
@@ -163,7 +174,13 @@ ynh_replace_string "#USER#" "$app" "$cron_path"
 ynh_replace_string "#DESTDIR#" "$final_path" "$cron_path"
 
 #=================================================
-# RELOAD NGINX
+# RELOAD NGINX AND FPM
 #=================================================
 systemctl restart php7.2-fpm
 systemctl reload nginx
+
+# If we upgrade from version 0.2, reload php7.0
+if [ "$version" = "0.2" ]
+then
+  systemctl restart php5-fpm
+fi
