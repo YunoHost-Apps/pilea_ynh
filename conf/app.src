@@ -1,3 +1,3 @@
-SOURCE_URL=https://github.com/SimonMellerin/Pilea/archive/sf-4-test.tar.gz
-SOURCE_SUM=d86525af237b14d9a4334fee5a27e801cdd4026bb7c82ee2dc3a63982799b574
+SOURCE_URL=https://github.com/SimonMellerin/Pilea/archive/0.3.1.tar.gz
+SOURCE_SUM=a8865c0868ca6038e5f6078ecead48a754af3ce888615a630ef4ecc47e8ec992
 SOURCE_FORMAT=tar.gz
