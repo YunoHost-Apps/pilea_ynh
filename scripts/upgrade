@@ -67,7 +67,7 @@ ynh_abort_if_errors	# Stop script if an error is detected
 #=================================================
 
 version=`cd $final_path && bin/console pilea:version 2> /dev/null || printf '0.2'`
-
+echo "$version"
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
@@ -109,14 +109,15 @@ ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
 # PHP-FPM CONFIGURATION
 #=================================================.
 
-# Copy and set php-fpm7.2 configuration
-ynh_add_fpm7.2_config
-
 # If we upgrade from version 0.2, delete php7.0 config
 if [ "$version" = "0.2" ]
 then
   ynh_remove_fpm_config
 fi
+
+# Copy and set php-fpm7.2 configuration
+ynh_add_fpm7.2_config
+
 
 #=================================================
 # SETUP SSOWAT
