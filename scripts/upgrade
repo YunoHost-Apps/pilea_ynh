@@ -67,7 +67,7 @@ ynh_abort_if_errors	# Stop script if an error is detected
 #=================================================
 
 version=`cd $final_path && bin/console pilea:version 2> /dev/null || printf '0.2'`
-echo "$version"
+
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
