@@ -1,1 +1,1 @@
-*/10  *  *  *  * #USER# #DESTDIR#/bin/console pilea:fetch-data false
+*/10  *  *  *  * #USER# php7.2 #DESTDIR#/bin/console pilea:fetch-data false
