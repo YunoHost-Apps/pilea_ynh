@@ -1,3 +1,4 @@
+
  Pilea for Yunohost - [English Version]
 ------------------------
 [![Integration level](https://dash.yunohost.org/integration/pilea.svg)](https://dash.yunohost.org/appci/app/pilea)  
@@ -6,6 +7,8 @@
 > *This package allow you to install Pilea quickly and simply on a YunoHost server.
 If you don't have YunoHost, please see [here](https://yunohost.org/#/install) to know how to install and enjoy it.*
 
+**Please note that this app will install PHP 7.2**
+
 ## Overview
 
 The idea of [Pilea](https://github.com/SimonMellerin/Pilea) is to display electricity consumption and weather data on a little dashboard that allow the user to:
@@ -13,7 +16,7 @@ The idea of [Pilea](https://github.com/SimonMellerin/Pilea) is to display electr
  * Better understand his electricity consumption
  * Analyse his electricity consumption throw weather data
 
- **Shipped version:** 0.2.3
+ **Shipped version:** 0.3.2
 
 ## Screenshot
 

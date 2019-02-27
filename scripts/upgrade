@@ -56,26 +56,30 @@ db_user="$db_name"
 
 # Use prior backup and restore on error only if backup feature
 # exists on installed instance
-if [ -f "/etc/yunohost/apps/$app/scripts/backup" ] ; then
-  ynh_backup_before_upgrade # Backup the current version of the app
-  ynh_clean_setup () {
-      ynh_restore_upgradebackup
-  }
-  ynh_abort_if_errors	# Stop script if an error is detected
-fi
+ynh_backup_before_upgrade # Backup the current version of the app
+ynh_clean_setup () {
+    ynh_restore_upgradebackup
+}
+ynh_abort_if_errors	# Stop script if an error is detected
+
+#=================================================
+# CHECK CURRENT PILEA VERSION
+#=================================================
+
+version=`cd $final_path && bin/console pilea:version 2> /dev/null || printf '0.2'`
 
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
 
-ynh_install_app_dependencies "$PKG_DEPENDENCIES"
+ynh_install_php7
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 
 # Create tmp directory and fetch app inside
-TMPDIR=$(ynh_mkdir_tmp)
+TMPDIR=$(mktemp -d)
 ynh_setup_source "$TMPDIR"
 
 #=================================================
@@ -105,8 +109,15 @@ ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
 # PHP-FPM CONFIGURATION
 #=================================================.
 
-# Copy and set php-fpm configuration
-ynh_add_fpm_config
+# If we upgrade from version 0.2, delete php7.0 config
+if [ "$version" = "0.2" ]
+then
+  ynh_remove_fpm_config
+fi
+
+# Copy and set php-fpm7.2 configuration
+ynh_add_fpm7.2_config
+
 
 #=================================================
 # SETUP SSOWAT
@@ -125,10 +136,10 @@ fi
 #=================================================
 
 # Check if dependencies need to be updated with composer
-if [ -f "${final_path}/composer.json" ]; then
-  exec_composer "${final_path}" install
+if [ -f "${TMPDIR}/composer.phar" ]; then
+  exec_composer "${TMPDIR}" install
 else
-  init_composer "${final_path}"
+  init_composer "${TMPDIR}"
 fi
 
 #=================================================
@@ -136,23 +147,41 @@ fi
 #=================================================
 
 # Copy and set Pilea dist configuration
-wb_conf="${TMPDIR}/app/config/parameters.yml"
-cp ${TMPDIR}/app/config/parameters.yml.dist $wb_conf
+pilea_conf="${TMPDIR}/.env"
+cp ../conf/.env $pilea_conf
 
-ynh_replace_string "database_name: pilea" "database_name:  ${db_name}" "$wb_conf"
-ynh_replace_string "database_user: root" "database_user: ${db_user}" "$wb_conf"
-ynh_replace_string "database_password: ~" "database_password: ${db_pwd}" "$wb_conf"
-ynh_replace_string "secret: ThisTokenIsNotSoSecretChangeIt" "secret: ${deskey}" "$wb_conf"
+ynh_replace_string "database_name" "${db_name}" "$pilea_conf"
+ynh_replace_string "database_user" "${db_user}" "$pilea_conf"
+ynh_replace_string "database_password" "${db_pwd}" "$pilea_conf"
+ynh_replace_string "app_secret" "${deskey}" "$pilea_conf"
 
 # Replace files and set permissions
-ynh_secure_remove "${final_path}/var/cache"
-mkdir "${final_path}/var/cache"
+ynh_secure_remove "${final_path}"
 cp -a $TMPDIR/. "${final_path}"
 chown -R $app: "${final_path}"
 chmod 755 $final_path
 
+# Install dependencies and Pilea
+exec_console $app "$final_path" cache:clear
+exec_console $app "$final_path" doctrine:migrations:migrate -n
+
+# Set up cron job
+cron_path="/etc/cron.d/$app"
+cp -a ../conf/pilea.cron "$cron_path"
+chown root: "$cron_path"
+chmod 644 "$cron_path"
+
+ynh_replace_string "#USER#" "$app" "$cron_path"
+ynh_replace_string "#DESTDIR#" "$final_path" "$cron_path"
+
 #=================================================
-# RELOAD NGINX
+# RELOAD NGINX AND FPM
 #=================================================
-systemctl restart php5-fpm
+systemctl restart php7.2-fpm
 systemctl reload nginx
+
+# If we upgrade from version 0.2, reload php7.0
+if [ "$version" = "0.2" ]
+then
+  systemctl restart php5-fpm
+fi

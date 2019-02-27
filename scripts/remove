@@ -27,10 +27,7 @@ domain=$(ynh_app_setting_get "$app" domain)
 # REMOVE DEPENDENCIES
 #=================================================
 
-ynh_remove_app_dependencies
-# The following command is kept as a matter of transition with the previous way
-# of managing dependencies
-ynh_package_autoremove "pilea-deps" || true
+ynh_remove_php7
 
 #=================================================
 # REMOVE THE MYSQL DB
@@ -43,6 +40,7 @@ ynh_mysql_remove_db "$app" "$db_name"
 #=================================================
 
 ynh_secure_remove "/var/www/$app"
+
 #=================================================
 # REMOVE CRON JOB
 #=================================================
@@ -53,11 +51,11 @@ ynh_secure_remove "/etc/cron.d/$app"
 # REMOVE NGINX AND PHP-FPM CONFIGURATION
 #=================================================
 
-ynh_remove_fpm_config
+ynh_remove_fpm7.2_config
 ynh_remove_nginx_config
 
 # Reload services
-systemctl restart php5-fpm
+systemctl restart php7.2-fpm
 systemctl reload nginx
 
 #=================================================
