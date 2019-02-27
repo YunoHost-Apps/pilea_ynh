@@ -1,6 +1,7 @@
-# Pilea for Yunohost - [English Version]
 
-[![Integration level](https://dash.yunohost.org/integration/pilea.svg)](https://ci-apps.yunohost.org/jenkins/job/pilea%20%28Community%29/lastBuild/consoleFull)
+ Pilea for Yunohost - [English Version]
+------------------------
+[![Integration level](https://dash.yunohost.org/integration/pilea.svg)](https://dash.yunohost.org/appci/app/pilea)  
 [![Install pilea with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=pilea)
 
 > *This package allow you to install Pilea quickly and simply on a YunoHost server.
@@ -43,7 +44,7 @@ More information can be found on [Pilea repo](https://github.com/SimonMellerin/P
 
 #### Multi-users support
 
-For now, Pilea doesn't support users. So all user we'll see the same data.
+For now, Pilea doesn't support users. So all user will see the same data.
 
 ## Links
 
