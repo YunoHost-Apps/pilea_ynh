@@ -57,7 +57,7 @@ ynh_app_setting_set $app is_public "$is_public"
 # INSTALL DEPENDENCIES
 #=================================================
 
-ynh_install_php7
+ynh_install_php --phpversion=7.2
 
 #=================================================
 # CREATE A MYSQL DB

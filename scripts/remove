@@ -27,7 +27,7 @@ domain=$(ynh_app_setting_get "$app" domain)
 # REMOVE DEPENDENCIES
 #=================================================
 
-ynh_remove_php7
+ynh_remove_php --phpversion=7.2
 
 #=================================================
 # REMOVE THE MYSQL DB
