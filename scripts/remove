@@ -27,7 +27,6 @@ domain=$(ynh_app_setting_get "$app" domain)
 # REMOVE DEPENDENCIES
 #=================================================
 
-ynh_install_app_dependencies $php_dependencies
 ynh_remove_php --phpversion=7.2
 ynh_remove_app_dependencies $pkg_dependencies
 

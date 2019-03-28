@@ -1,6 +1,5 @@
 # dependencies used by the app
 pkg_dependencies="apt-transport-https"
-php_dependencies="php7.2-zip php7.2-fpm php7.2-mysql php7.2-xml php7.2-intl php7.2-mbstring php7.2-gd php7.2-curl php7.2-bcmath php7.2-opcache php7.2-sqlite3"
 
 # Execute a command as another user
 # usage: exec_as USER COMMAND [ARG ...]
@@ -299,7 +298,7 @@ ynh_install_php () {
     # Force the upgrade of libpcre3 for php7.2
     ynh_package_install "libpcre3=$libpcre3_version"
 
-    local php_dependencies="php7.2, php7.2-fpm"
+    local php_dependencies="php7.2, php7.2-fpm, php7.2-zip, php7.2-mysql, php7.2-xml, php7.2-intl, php7.2-mbstring, php7.2-gd, php7.2-curl, php7.2-bcmath, php7.2-opcache, php7.2-sqlite3"
 
   # Php 7.3
   elif [ "$phpversion" == "7.3" ]; then

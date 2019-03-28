@@ -59,7 +59,6 @@ ynh_app_setting_set $app is_public "$is_public"
 
 ynh_install_app_dependencies $pkg_dependencies
 ynh_install_php --phpversion=7.2
-ynh_install_app_dependencies $php_dependencies
 
 #=================================================
 # CREATE A MYSQL DB
