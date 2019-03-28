@@ -1,3 +1,6 @@
+# dependencies used by the app
+pkg_dependencies="apt-transport-https"
+
 # Execute a command as another user
 # usage: exec_as USER COMMAND [ARG ...]
 exec_as() {

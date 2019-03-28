@@ -19,7 +19,7 @@
     },
     "services": [
         "nginx",
-        "php5-fpm",
+        "php7.2-fpm",
         "mysql"
     ],
     "arguments": {
