@@ -1,6 +1,7 @@
 # dependencies used by the app
-php_install_dependencies="apt-transport-https"
-pkg_dependencies="libzip4=1.5.1-4+0~20190318173229.9+stretch~1.gbp333132 php7.2-zip php7.2-fpm php7.2-mysql php7.2-xml php7.2-intl php7.2-mbstring php7.2-gd php7.2-curl php7.2-bcmath php7.2-opcache php7.2-sqlite3"
+pkg_dependencies="apt-transport-https"
+php_version="7.2"
+php_packages="php7.2-zip php7.2-fpm php7.2-mysql php7.2-xml php7.2-intl php7.2-mbstring php7.2-gd php7.2-curl php7.2-bcmath php7.2-opcache php7.2-sqlite3"
 
 # Execute a command as another user
 # usage: exec_as USER COMMAND [ARG ...]
@@ -260,83 +261,43 @@ ynh_remove_extra_repo () {
 
 # Install another version of php.
 #
-# usage: ynh_install_php --phpversion=phpversion
+# usage: ynh_install_php --phpversion=phpversion [--package=packages]
 # | arg: -v, --phpversion - Version of php to install. Can be one of 7.1, 7.2 or 7.3
+# | arg: -p, --package - Additionnal php packages to install
 ynh_install_php () {
   # Declare an array to define the options of this helper.
-  local legacy_args=v
-  declare -Ar args_array=( [v]=phpversion= )
+  local legacy_args=vp
+  declare -Ar args_array=( [v]=phpversion= [p]=package= )
   local phpversion
+  local package
   # Manage arguments with getopts
   ynh_handle_getopts_args "$@"
+  package=${package:-}
 
   # Store php_version into the config of this app
   ynh_app_setting_set $app php_version $phpversion
 
-  # Install an extra repo to get multiple php versions
-  ynh_install_extra_repo --repo="https://packages.sury.org/php/ $(lsb_release -sc) main" --key="https://packages.sury.org/php/apt.gpg" --name=php
-
-  if [ "$phpversion" == "7.0" ]; then
+  if [ "$phpversion" == "7.0" ]
+  then
     ynh_die "Do not use ynh_install_php to install php7.0"
-
-  # Php 7.1
-  elif [ "$phpversion" == "7.1" ]; then
-    # Get the current version available for libpcre3 on packages.sury.org
-    local libpcre3_version=$(apt-cache madison "libpcre3" | grep "packages.sury.org" | tail -n1 | awk '{print $3}')
-
-    # equivs doesn't handle correctly this dependence.
-    # Force the upgrade of libpcre3 for php7.1
-    ynh_package_install "libpcre3=$libpcre3_version"
-
-    local php_dependencies="php7.1, php7.1-fpm"
-
-  # Php 7.2
-  elif [ "$phpversion" == "7.2" ]; then
-    # Get the current version available for libpcre3 on packages.sury.org
-    local libpcre3_version=$(apt-cache madison "libpcre3" | grep "packages.sury.org" | tail -n1 | awk '{print $3}')
-
-    # equivs doesn't handle correctly this dependence.
-    # Force the upgrade of libpcre3 for php7.2
-    ynh_package_install "libpcre3=$libpcre3_version"
-
-    local php_dependencies="php7.2, php7.2-fpm"
-
-  # Php 7.3
-  elif [ "$phpversion" == "7.3" ]; then
-    # Get the current version available for libpcre2-8-0 on packages.sury.org
-    local libpcre2_version=$(apt-cache madison "libpcre2-8-0" | grep "packages.sury.org" | tail -n1 | awk '{print $3}')
-
-    # equivs doesn't handle correctly this dependence.
-    # Force the upgrade of libpcre2-8-0 for php7.3
-    ynh_package_install "libpcre2-8-0=$libpcre2_version"
-
-    local php_dependencies="php7.3, php7.3-fpm"
-
-  else
-    ynh_die "The version $phpversion of php isn't handle by this helper."
   fi
 
   # Store the ID of this app and the version of php requested for it
-  echo "$YNH_APP_ID:$phpversion" | tee --append "/etc/php/ynh_app_version"
+  echo "$YNH_APP_INSTANCE_NAME:$phpversion" | tee --append "/etc/php/ynh_app_version"
 
-  # Build a control file for equivs-build
-    echo "Section: misc
-Priority: optional
-Package: php${phpversion}-ynh-deps
-Version: 1.0
-Depends: $php_dependencies
-Architecture: all
-Description: Fake package for php_$phpversion dependencies
- This meta-package is only responsible of installing its dependencies." \
-  > /tmp/php_${phpversion}-ynh-deps.control
+  # Add an extra repository for those packages
+  ynh_install_extra_repo --repo="https://packages.sury.org/php/ $(lsb_release -sc) main" --key="https://packages.sury.org/php/apt.gpg" --priority=995 --name=extra_php_version
 
-  # Install the fake package for php
-  ynh_package_install_from_equivs /tmp/php_${phpversion}-ynh-deps.control \
-        || ynh_die --message="Unable to install dependencies"
-  ynh_secure_remove /tmp/php_${phpversion}-ynh-deps.control
+  # Install requested dependencies from this extra repository.
+  # Install php-fpm first, otherwise php will install apache as a dependency.
+  ynh_add_app_dependencies --package="php${phpversion}-fpm"
+  ynh_add_app_dependencies --package="php$phpversion php${phpversion}-common $package"
+
+  # Remove this extra repository after packages are installed
+  ynh_remove_extra_repo --name=extra_php_version
 
   # Advertise service in admin panel
-  yunohost service add php${phpversion}-fpm --log "/var/log/php${phpversion}-fpm.log"
+	yunohost service add php${phpversion}-fpm --log "/var/log/php${phpversion}-fpm.log"
 }
 
 ynh_remove_php () {
@@ -353,37 +314,13 @@ ynh_remove_php () {
   fi
 
   # Remove the line for this app
-  sed --in-place "/$YNH_APP_ID:$phpversion/d" "/etc/php/ynh_app_version"
+  sed --in-place "/$YNH_APP_INSTANCE_NAME:$phpversion/d" "/etc/php/ynh_app_version"
 
   # If no other app uses this version of php, remove it.
   if ! grep --quiet "$phpversion" "/etc/php/ynh_app_version"
   then
-    # Remove the metapackage for php
-    ynh_package_autopurge php${phpversion}-ynh-deps
-    # Then remove php-fpm php-cli for this version.
-    # The previous command won't remove them, but we have to remove those package to clean php
-    ynh_package_autopurge php${phpversion}-fpm php${phpversion}-cli
-
-    if [ "$phpversion" == "7.1" ] || [ "$phpversion" == "7.2" ]
-    then
-      # Do not restore libpcre3 if php7.1 or 7.2 is still used.
-      if ! grep --quiet --extended-regexp "7.1|7.2" "/etc/php/ynh_app_version"
-      then
-        # Get the current version available for libpcre3 on the standard repo
-        local libpcre3_version=$(apt-cache madison "libpcre3" | grep "debian.org" | tail -n1 | awk '{print $3}')
-
-        # Force to reinstall the standard version of libpcre3
-        ynh_package_install --allow-downgrades libpcre3=$libpcre3_version >&2
-      fi
-    elif [ "$phpversion" == "7.3" ]
-    then
-      # Get the current version available for libpcre2-8-0 on the standard repo
-      local libpcre2_version=$(apt-cache madison "libpcre2-8-0" | grep "debian.org" | tail -n1 | awk '{print $3}')
-
-      # Force to reinstall the standard version of libpcre2-8-0
-      ynh_package_install --allow-downgrades libpcre2-8-0=$libpcre2_version
-    fi
-
+    # Purge php dependences for this version.
+    ynh_package_autopurge "php$phpversion php${phpversion}-fpm php${phpversion}-common"
     # Remove the service from the admin panel
     yunohost service remove php${phpversion}-fpm
   fi
@@ -391,7 +328,6 @@ ynh_remove_php () {
   # If no other app uses alternate php versions, remove the extra repo for php
   if [ ! -s "/etc/php/ynh_app_version" ]
   then
-    ynh_remove_extra_repo --name=php
     ynh_secure_remove /etc/php/ynh_app_version
   fi
 }
