@@ -73,7 +73,7 @@ version=`cd $final_path && bin/console pilea:version 2> /dev/null || printf '0.2
 #=================================================
 
 ynh_install_app_dependencies $pkg_dependencies
-ynh_install_php --phpversion="$php_version" --package="$php_packages"
+ynh_install_php --phpversion="$php_app_version" --package="$php_additonal_packages"
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE

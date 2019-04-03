@@ -1,7 +1,7 @@
 # dependencies used by the app
 pkg_dependencies="apt-transport-https"
-php_version="7.2"
-php_packages="php7.2-zip php7.2-mysql php7.2-xml php7.2-intl php7.2-mbstring php7.2-gd php7.2-curl php7.2-bcmath php7.2-opcache php7.2-sqlite3"
+php_app_version="7.3"
+php_additonal_packages="php7.3-zip php7.3-mysql php7.3-xml php7.3-intl php7.3-mbstring php7.3-gd php7.3-curl php7.3-bcmath php7.3-opcache php7.3-sqlite3"
 
 # Execute a command as another user
 # usage: exec_as USER COMMAND [ARG ...]
