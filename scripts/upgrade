@@ -166,8 +166,8 @@ chmod 755 $final_path
 
 # Install dependencies and Pilea
 pushd $final_path
-  sudo -u $app bin/console cache:clear
-  sudo -u $app bin/console doctrine:migrations:migrate -n
+  sudo -u $app php7.3 bin/console cache:clear
+  sudo -u $app php7.3 bin/console doctrine:migrations:migrate -n
 popd
 
 # Set up cron job

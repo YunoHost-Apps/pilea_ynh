@@ -156,7 +156,7 @@ chmod 755 $final_path
 
 # Install dependencies and Pilea
 pushd $final_path
-  sudo -u $app bin/console pilea:install "$app"
+  sudo -u $app php7.3 bin/console pilea:install "$app"
 popd
 
 # Set up cron job
