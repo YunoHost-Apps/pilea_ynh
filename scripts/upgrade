@@ -1,27 +1,22 @@
 #!/bin/bash
 
-# Exit on command errors and treat unset variables as an error
-set -eu
 #=================================================
 # GENERIC STARTING
 #=================================================
 # IMPORT GENERIC HELPERS
 #=================================================
-
 source _common.sh
+source ynh_install_php__3
+source ynh_composer__2
 source /usr/share/yunohost/helpers
 
 #=================================================
 # LOAD SETTINGS
 #=================================================
+ynh_print_info --message="Loading installation settings..."
+
 # Set app specific variables
 app=$YNH_APP_INSTANCE_NAME
-
-# Check destination directory
-DESTDIR="/var/www/$app"
-[[ ! -d $DESTDIR ]] && ynh_die \
-"The destination directory '$DESTDIR' does not exist.\
- The app is not correctly installed, you should remove it first."
 
 # Retrieve arguments
 domain=$(ynh_app_setting_get "$app" domain)
@@ -53,6 +48,7 @@ db_user="$db_name"
 #=================================================
 # MANAGE SCRIPT FAILURE
 #=================================================
+ynh_print_info --message="Backing up the app before upgrading (may take a while)..."
 
 # Use prior backup and restore on error only if backup feature
 # exists on installed instance
@@ -78,6 +74,7 @@ ynh_install_php --phpversion="$php_app_version" --package="$php_additonal_packag
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
+ynh_print_info --message="Downloading Pilea source files..."
 
 # Create tmp directory and fetch app inside
 TMPDIR=$(mktemp -d)
@@ -86,6 +83,7 @@ ynh_setup_source "$TMPDIR"
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
+ynh_print_info --message="Making sure dedicated system user exists..."
 
 ynh_system_user_create $app # Create dedicated user if not existing
 
@@ -108,7 +106,8 @@ ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
 
 #=================================================
 # PHP-FPM CONFIGURATION
-#=================================================.
+#=================================================
+ynh_print_info --message="Upgrading php-fpm configuration..."
 
 # If we upgrade from version 0.2, delete php7.0 config
 if [ "$version" = "0.2" ]
@@ -116,8 +115,8 @@ then
   ynh_remove_fpm_config
 fi
 
-# Copy and set php-fpm7.2 configuration
-ynh_add_fpm7.2_config
+# Create a dedicated php-fpm config
+ynh_add_fpm_config --phpversion="$php_app_version"
 
 
 #=================================================
@@ -135,17 +134,19 @@ fi
 #=================================================
 # UPDATE DEPENDENCIES WITH COMPOSER
 #=================================================
+ynh_print_info --message="Upgrading Composer depedencies..."
 
 # Check if dependencies need to be updated with composer
 if [ -f "${TMPDIR}/composer.phar" ]; then
-  exec_composer "${TMPDIR}" install
+  ynh_composer_exec --phpversion="$php_app_version" --workdir="${TMPDIR}" --commands="install"
 else
-  init_composer "${TMPDIR}"
+  ynh_install_composer --phpversion="$php_app_version" --workdir="$TMPDIR"
 fi
 
 #=================================================
 # CONFIGURE & UPDATE PILEA
 #=================================================
+ynh_print_info --message="Upgrading Pilea..."
 
 # Copy and set Pilea dist configuration
 pilea_conf="${TMPDIR}/.env"
@@ -163,8 +164,10 @@ chown -R $app: "${final_path}"
 chmod 755 $final_path
 
 # Install dependencies and Pilea
-exec_console $app "$final_path" cache:clear
-exec_console $app "$final_path" doctrine:migrations:migrate -n
+pushd $final_path
+  sudo -u $app cache:clear
+  sudo -u $app doctrine:migrations:migrate -n
+popd
 
 # Set up cron job
 cron_path="/etc/cron.d/$app"
@@ -176,13 +179,27 @@ ynh_replace_string "#USER#" "$app" "$cron_path"
 ynh_replace_string "#DESTDIR#" "$final_path" "$cron_path"
 
 #=================================================
+# SETUP SSOWAT
+#=================================================
+ynh_print_info --message="Upgrading SSOwat configuration..."
+
+# Make app public if necessary
+if [ $is_public -eq 1 ]
+then
+  # unprotected_uris allows SSO credentials to be passed anyway
+  ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
+fi
+
+#=================================================
 # RELOAD NGINX AND FPM
 #=================================================
-systemctl restart php7.2-fpm
-systemctl reload nginx
+ynh_print_info --message="Reloading nginx web server..."
 
-# If we upgrade from version 0.2, reload php7.0
-if [ "$version" = "0.2" ]
-then
-  systemctl restart php5-fpm
-fi
+ynh_systemd_action --service_name=nginx --action=reload
+ynh_systemd_action --service_name="php$php_app_version-fpm" --action=reload
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info --message="Upgrade of $app completed"
