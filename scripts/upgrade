@@ -166,7 +166,7 @@ chmod 755 $final_path
 
 # Install dependencies and Pilea
 pushd $final_path
-  sudo -u $app php7.3 bin/console cache:clear
+  sudo -u $app php7.3 bin/console cache:clear -n
   sudo -u $app php7.3 bin/console doctrine:migrations:migrate -n
 popd
 
