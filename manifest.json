@@ -8,18 +8,18 @@
     },
     "url": "https://github.com/SimonMellerin/Pilea",
     "license": "MIT",
-    "version": "0.3.2",
+    "version": "0.3.2.1",
     "maintainer": {
         "name": "Simon Mellerin",
         "email": ""
     },
     "multi_instance": true,
     "requirements": {
-        "yunohost": ">= 2.7.12"
+        "yunohost": ">= 3.x"
     },
     "services": [
         "nginx",
-        "php7.2-fpm",
+        "php7.3-fpm",
         "mysql"
     ],
     "arguments": {
