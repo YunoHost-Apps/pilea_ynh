@@ -175,8 +175,8 @@ ynh_replace_string "#DESTDIR#" "$final_path" "$cron_path"
 #=================================================
 ynh_print_info --message="Configuring php-fpm..."
 
-# Copy and set php-fpm7.2 configuration
-ynh_add_fpm_config --phpversion="7.2"
+# Copy and set php-fpm7.3 configuration
+ynh_add_fpm_config --phpversion="$php_app_version"
 
 #=================================================
 # SETUP SSOWAT
