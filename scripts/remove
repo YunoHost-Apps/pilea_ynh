@@ -9,9 +9,9 @@ set -u
 #=================================================
 
 source _common.sh
+source /usr/share/yunohost/helpers
 source ynh_add_extra_apt_repo__3
 source ynh_install_php__3
-source /usr/share/yunohost/helpers
 
 #=================================================
 # LOAD SETTINGS
