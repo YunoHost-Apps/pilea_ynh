@@ -60,12 +60,6 @@ ynh_clean_setup () {
 ynh_abort_if_errors	# Stop script if an error is detected
 
 #=================================================
-# CHECK CURRENT PILEA VERSION
-#=================================================
-
-version=`cd $final_path && bin/console pilea:version 2> /dev/null || printf '0.2'`
-
-#=================================================
 # INSTALL DEPENDENCIES
 #=================================================
 
@@ -109,12 +103,6 @@ ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
 # PHP-FPM CONFIGURATION
 #=================================================
 ynh_print_info --message="Upgrading php-fpm configuration..."
-
-# If we upgrade from version 0.2, delete php7.0 config
-if [ "$version" = "0.2" ]
-then
-  ynh_remove_fpm_config
-fi
 
 # Create a dedicated php-fpm config
 ynh_add_fpm_config --phpversion="$php_app_version"
