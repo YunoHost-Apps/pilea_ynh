@@ -7,7 +7,7 @@
 > *This package allow you to install Pilea quickly and simply on a YunoHost server.
 If you don't have YunoHost, please see [here](https://yunohost.org/#/install) to know how to install and enjoy it.*
 
-**Please note that this app will install PHP 7.2**
+**Please note that this app will install PHP 7.3**
 
 ## Overview
 
@@ -16,7 +16,7 @@ The idea of [Pilea](https://github.com/SimonMellerin/Pilea) is to display electr
  * Better understand his electricity consumption
  * Analyse his electricity consumption throw weather data
 
- **Shipped version:** 0.3.8
+ **Shipped version:** 0.3.10
 
 ## Screenshot
 
