@@ -16,7 +16,7 @@ The idea of [Pilea](https://github.com/SimonMellerin/Pilea) is to display electr
  * Better understand his electricity consumption
  * Analyse his electricity consumption throw weather data
 
- **Shipped version:** 0.3.10
+ **Shipped version:** 0.3.11
 
 ## Screenshot
 
