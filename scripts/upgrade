@@ -24,6 +24,8 @@ app=$YNH_APP_INSTANCE_NAME
 domain=$(ynh_app_setting_get "$app" domain)
 path_url=$(ynh_app_setting_get "$app" path_url)
 is_public=$(ynh_app_setting_get "$app" is_public)
+admin=$(ynh_app_setting_get "$app" admin)
+
 # Compatibility with previous version
 if [ -z "$path_url" ] ; then
   path_url=$(ynh_app_setting_get "$app" path)
