@@ -161,13 +161,21 @@ pushd $final_path
   ynh_exec_as $app php7.3 bin/console doctrine:migrations:migrate -n
 
   # Set admin user
-  ynh_exec_as $app php7.3 bin/console pilea:user:edit admin -u "$admin" -n
+  admin_exists = ynh_exec_as $app php7.3 bin/console pilea:user:exist "$admin"
+  if [!$admin_exists]
+  then
+    ynh_exec_as $app php7.3 bin/console pilea:user:edit admin -u "$admin" -n
+  fi
 
   # Create Pilea's user
   for username in $(ynh_user_list)
   do
-    user_pass=$(ynh_string_random)
-    ynh_exec_as $app php7.3 bin/console pilea:user:add "$username" "$user_pass" -n
+    user_exists = ynh_exec_as $app php7.3 bin/console pilea:user:exist "$username"
+    if [!$user_exists]
+    then
+      user_pass=$(ynh_string_random)
+      ynh_exec_as $app php7.3 bin/console pilea:user:add "$username" "$user_pass" -n
+    fi
   done
 popd
 
