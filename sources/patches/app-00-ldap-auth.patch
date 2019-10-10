@@ -30,3 +30,4 @@ index 689a7bd..48197cd 100644
 +        class: Symfony\Component\Ldap\Adapter\ExtLdap\Adapter
 +        arguments:
 +            - host: "localhost"
+\ No newline at end of file
