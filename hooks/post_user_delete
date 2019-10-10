@@ -1,0 +1,14 @@
+#!/bin/bash
+#!/bin/bash
+
+# Source YunoHost helpers
+source /usr/share/yunohost/helpers
+source ynh_exec_as
+
+# Retrieve arguments
+app=__APP__
+username=$1
+final_path = ynh_app_setting_get $app final_path
+
+# Deactivate the user in Pilea
+cd "$final_path" && ynh_exec_as $app php7.3 bin/console pilea:user:deactivate "$username" -n

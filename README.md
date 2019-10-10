@@ -16,7 +16,7 @@ The idea of [Pilea](https://github.com/SimonMellerin/Pilea) is to display electr
  * Better understand his electricity consumption
  * Analyse his electricity consumption throw weather data
 
- **Shipped version:** 0.3.16
+ **Shipped version:** 0.4.x
 
 ## Screenshot
 
@@ -42,9 +42,8 @@ More information can be found on [Pilea repo](https://github.com/SimonMellerin/P
 
 ## YunoHost specific features
 
-#### Multi-users support
-
-For now, Pilea doesn't support users. So all user will see the same data.
+* Integrate with YunoHost users and SSO
+* Allow one user to be the administrator (set at the installation)
 
 ## Links
 
