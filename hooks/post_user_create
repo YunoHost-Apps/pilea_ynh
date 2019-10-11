@@ -10,8 +10,13 @@ app=__APP__
 username=$1
 final_path=$(ynh_app_setting_get "$app" final_path)
 
-# Generate a random password
-password=$(ynh_string_random)
-
-# Create the new user in Pilea
-cd "$final_path" && ynh_exec_as $app php7.3 bin/console pilea:user:add "$username" "$password" -n
+pushd $final_path
+    user_exists=$(ynh_exec_as $app php7.3 bin/console pilea:user:exist "$username")
+    if [!($user_exists)]
+    then
+        user_pass=$(ynh_string_random)
+        ynh_exec_as $app php7.3 bin/console pilea:user:add "$username" "$user_pass" -n
+    else
+        ynh_exec_as $app php7.3 bin/console pilea:user:aactivate "$username"
+    fi
+popd
