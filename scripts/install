@@ -158,6 +158,16 @@ chmod 755 $final_path
 # Install dependencies and Pilea
 pushd $final_path
   ynh_exec_as $app php7.3 bin/console pilea:install "$app" -n
+
+  # Create Pilea's user
+  for username in $(ynh_user_list)
+  do
+    user_pass=$(ynh_string_random)
+    ynh_exec_as $app php7.3 bin/console pilea:user:add "$username" "$user_pass"
+  done
+
+  # Set admin user
+  ynh_exec_as $app php7.3 bin/console pilea:user:grant "$admin"
 popd
 
 # Set up cron job
@@ -168,6 +178,8 @@ chmod 644 "$cron_path"
 
 ynh_replace_string "#USER#" "$app" "$cron_path"
 ynh_replace_string "#DESTDIR#" "$final_path" "$cron_path"
+
+
 
 #=================================================
 # GENERIC FINALIZATION
