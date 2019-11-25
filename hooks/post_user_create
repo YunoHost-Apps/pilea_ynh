@@ -17,6 +17,6 @@ pushd $final_path
         user_pass=$(ynh_string_random)
         ynh_exec_as $app php7.3 bin/console pilea:user:add "$username" "$user_pass" -n
     else
-        ynh_exec_as $app php7.3 bin/console pilea:user:aactivate "$username"
+        ynh_exec_as $app php7.3 bin/console pilea:user:activate "$username"
     fi
 popd
