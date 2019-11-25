@@ -1,18 +1,11 @@
 #!/bin/bash
 
-# Exit on command errors and treat unset variables as an error
-set -eu
-
 #=================================================
 # IMPORT GENERIC HELPERS
 #=================================================
 
-if [ ! -e _common.sh ]; then
-	# Fetch helpers file if not in current directory
-	cp ../settings/scripts/_common.sh ./_common.sh
-	chmod a+rx _common.sh
-fi
-source _common.sh
+#Keep this path for calling _common.sh inside the execution's context of backup and restore scripts
+source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -25,10 +18,13 @@ ynh_abort_if_errors
 #=================================================
 # LOAD SETTINGS
 #=================================================
+ynh_print_info --message="Loading installation settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
 domain=$(ynh_app_setting_get $app domain)
+path_url=$(ynh_app_setting_get $app path)
+is_public=$(ynh_app_setting_get $app is_public)
 final_path=$(ynh_app_setting_get $app final_path)
 db_name=$(ynh_app_setting_get $app db_name)
 
@@ -37,25 +33,41 @@ db_name=$(ynh_app_setting_get $app db_name)
 #=================================================
 # BACKUP APP MAIN DIR
 #=================================================
+ynh_print_info --message="Backing up the main app directory..."
 
-CHECK_SIZE "$final_path"
 ynh_backup "$final_path"
 
 #=================================================
 # BACKUP NGINX CONFIGURATION
 #=================================================
+ynh_print_info --message="Backing up nginx web server configuration..."
 
 ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"
 
 #=================================================
 # BACKUP PHP-FPM CONFIGURATION
 #=================================================
+ynh_print_info --message="Backing up php-fpm configuration..."
 
-ynh_backup "/etc/php/7.2/fpm/pool.d/$app.conf"
+ynh_backup "/etc/php/$php_app_version/fpm/pool.d/$app.conf"
 
 #=================================================
 # BACKUP MYSQL DB
 #=================================================
+ynh_print_info --message="Backing up the MySQL database..."
 
 ynh_mysql_dump_db "$db_name" > db.sql
-CHECK_SIZE "db.sql"
+
+#=================================================
+# SPECIFIC BACKUP
+#=================================================
+# BACKUP A CRON FILE
+#=================================================
+
+ynh_backup --src_path="/etc/cron.d/$app"
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info --message="Backup script completed for $app. (YunoHost will then actually copy those files to the archive)."

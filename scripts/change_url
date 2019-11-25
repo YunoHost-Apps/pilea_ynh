@@ -24,6 +24,7 @@ app=$YNH_APP_INSTANCE_NAME
 #=================================================
 # LOAD SETTINGS
 #=================================================
+ynh_print_info --message="Loading installation settings..."
 
 db_name=$(ynh_app_setting_get "$app" db_name)
 db_pwd=$(ynh_app_setting_get "$app" mysqlpwd)
@@ -60,6 +61,7 @@ fi
 #=================================================
 # MODIFY URL IN NGINX CONF FILE
 #=================================================
+ynh_print_info --message="Updating nginx web server configuration..."
 
 nginx_conf_path=/etc/nginx/conf.d/$old_domain.d/$app.conf
 
@@ -108,9 +110,16 @@ ynh_replace_string "domain_name: .*" "domain_name: https://$new_domain$new_path"
 ynh_secure_remove $final_path/var/cache
 
 #=================================================
-# GENERIC FINALIZATION
+# GENERIC FINALISATION
 #=================================================
 # RELOAD NGINX
 #=================================================
+ynh_print_info --message="Reloading nginx web server..."
 
-systemctl reload nginx
+ynh_systemd_action --service_name=nginx --action=reload
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info --message="Change of URL completed for $app"

@@ -8,18 +8,17 @@
     },
     "url": "https://github.com/SimonMellerin/Pilea",
     "license": "MIT",
-    "version": "0.3.14",
+    "version": "0.3.16",
     "maintainer": {
         "name": "Simon Mellerin",
         "email": ""
     },
     "multi_instance": true,
     "requirements": {
-        "yunohost": ">= 2.7.12"
+        "yunohost": ">= 3.0"
     },
     "services": [
         "nginx",
-        "php5-fpm",
         "mysql"
     ],
     "arguments": {
@@ -50,7 +49,11 @@
                     "en": "Is it a public website?",
                     "fr": "Est-ce un site public ?"
                 },
-                "default": false
+                "default": false,
+                "help": {
+                    "en": "Be aware that installing Pilea as a public app will let everybody know your electricity consumption. Use this only if your Yunohost instance is on a local network !",
+                    "fr": "Installer Pilea en tant qu'application publique rendra accessible votre consommation d'électricité à tout le monde. N'utilisez cette option que si votre instance de Yunohost est sur un réseau local !"
+                }
             },
             {
                 "name": "admin",
