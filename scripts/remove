@@ -63,6 +63,13 @@ ynh_print_info --message="Removing nginx web server configuration..."
 ynh_remove_nginx_config
 
 #=================================================
+# REMOVE PHP-FPM CONFIGURATION
+#=================================================
+ynh_print_info --message="Removing php-fpm configuration..."
+
+ynh_remove_fpm_config
+
+#=================================================
 # REMOVE DEDICATED USER
 #=================================================
 ynh_print_info --message="Removing the dedicated system user..."
