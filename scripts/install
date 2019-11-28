@@ -35,7 +35,7 @@ is_public=$YNH_APP_ARG_IS_PUBLIC
 #=================================================
 # CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
 #=================================================
-ynh_print_info --message="Validating installation parameters..."
+ynh_script_progression --message="Validating installation parameters..." --time --weight=1
 
 final_path=/var/www/$app
 test ! -e "$final_path" || ynh_die "This path already contains a folder"
@@ -50,7 +50,7 @@ ynh_webpath_register $app $domain $path_url
 #=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
-ynh_print_info --message="Storing installation settings..."
+ynh_script_progression --message="Storing installation settings..." --time --weight=1
 
 ynh_app_setting_set $app domain "$domain"
 ynh_app_setting_set $app path_url "$path_url"
@@ -62,21 +62,21 @@ ynh_app_setting_set $app is_public "$is_public"
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
-ynh_print_info --message="Installing dependencies..."
+ynh_script_progression --message="Installing dependencies..." --time --weight=1
 
 ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
 # INSTALL PHP
 #=================================================
-ynh_print_info --message="Installing PHP..."
+ynh_script_progression --message="Installing PHP $php_app_version..." --time --weight=2
 
 ynh_install_php --phpversion="$php_app_version" --package="$php_additonal_packages"
 
 #=================================================
 # CREATE A MYSQL DB
 #=================================================
-ynh_print_info --message="Creating a MySQL database..."
+ynh_script_progression --message="Creating a MySQL database..." --time --weight=1
 
 db_name=$(ynh_sanitize_dbid $app)
 db_user="$db_name"
@@ -92,7 +92,7 @@ ynh_mysql_setup_db "$db_user" "$db_name"
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
-ynh_print_info --message="Downloading source files..."
+ynh_script_progression --message="Downloading source files..." --time --weight=1
 
 ynh_app_setting_set $app final_path "$final_path"
 # Create tmp directory and fetch app inside
@@ -102,14 +102,14 @@ ynh_setup_source "$TMPDIR"
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
-ynh_print_info --message="Configuring system user..."
+ynh_script_progression --message="Configuring system user..." --time --weight=1
 
 ynh_system_user_create $app # Create a dedicated system user
 
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
-ynh_print_info --message="Configuring nginx web server..."
+ynh_script_progression --message="Configuring nginx web server..." --time --weight=1
 
 ynh_add_nginx_config
 if [ "$path_url" = "/" ]
@@ -128,14 +128,14 @@ ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
 #=================================================
 # INSTALL AND INIT COMPOSER
 #=================================================
-ynh_print_info --message="Installing Composer..."
+ynh_script_progression --message="Installing Composer..." --time --weight=1
 
 ynh_install_composer --phpversion="$php_app_version" --workdir="$TMPDIR"
 
 #=================================================
 # CONFIGURE & INSTALL PILEA
 #=================================================
-ynh_print_info --message="Installing Pilea..."
+ynh_script_progression --message="Installing and configuring Pilea..." --time --weight=1
 
 pilea_conf="${TMPDIR}/.env"
 cp ../conf/.env $pilea_conf
@@ -155,7 +155,7 @@ mv "$TMPDIR" "$final_path"
 chown -R $app: $final_path
 chmod 755 $final_path
 
-# Install dependencies and Pilea
+# Install Pilea
 pushd $final_path
   ynh_exec_as $app php7.3 bin/console pilea:install "$app" -n
 
@@ -179,14 +179,12 @@ chmod 644 "$cron_path"
 ynh_replace_string "#USER#" "$app" "$cron_path"
 ynh_replace_string "#DESTDIR#" "$final_path" "$cron_path"
 
-
-
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
-ynh_print_info --message="Configuring php-fpm..."
+ynh_script_progression --message="Configuring php-fpm..." --time --weight=1
 
 # Copy and set php7.3-fpm configuration
 ynh_add_fpm_config --phpversion="$php_app_version"
@@ -194,7 +192,7 @@ ynh_add_fpm_config --phpversion="$php_app_version"
 #=================================================
 # SETUP SSOWAT
 #=================================================
-ynh_print_info --message="Configuring SSOwat..."
+ynh_script_progression --message="Configuring SSOwat..." --time --weight=1
 
 # Make app public if necessary
 if [ $is_public -eq 1 ]
@@ -205,7 +203,7 @@ fi
 #=================================================
 # RELOAD SERVICES
 #=================================================
-ynh_print_info --message="Reloading services..."
+ynh_script_progression --message="Reloading services..." --time --weight=1
 
 ynh_systemd_action --service_name=nginx --action=reload
 ynh_systemd_action --service_name="php$php_app_version-fpm" --action=reload
@@ -213,5 +211,4 @@ ynh_systemd_action --service_name="php$php_app_version-fpm" --action=reload
 #=================================================
 # END OF SCRIPT
 #=================================================
-
-ynh_print_info --message="Installation of $app completed"
+ynh_script_progression --message="Installation of $app completed" --time --last
