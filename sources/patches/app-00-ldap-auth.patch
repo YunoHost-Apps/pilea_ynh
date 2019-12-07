@@ -14,13 +14,16 @@ index 9ce714b..eb38efd 100644
                  path: app_logout
                  target: app_login
 diff --git a/config/services.yaml b/config/services.yaml
-index 689a7bd..48197cd 100644
+index bd2a89b..af2f525 100644
 --- a/config/services.yaml
 +++ b/config/services.yaml
-@@ -19,3 +19,12 @@ services:
-     App\Controller\:
-         resource: '../src/Controller'
-         tags: ['controller.service_arguments']
+@@ -22,4 +22,13 @@ services:
+
+     App\Twig\:
+         resource: '../src/Twig'
+-        tags: ['twig.extension', 'container.hot_path']
+\ No newline at end of file
++        tags: ['twig.extension', 'container.hot_path']
 +
 +    yunohost.ldap:
 +        class: Symfony\Component\Ldap\Ldap
@@ -30,4 +33,3 @@ index 689a7bd..48197cd 100644
 +        class: Symfony\Component\Ldap\Adapter\ExtLdap\Adapter
 +        arguments:
 +            - host: "localhost"
-\ No newline at end of file
