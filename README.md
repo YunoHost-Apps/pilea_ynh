@@ -11,7 +11,7 @@ If you don't have YunoHost, please see [here](https://yunohost.org/#/install) to
 
 ## Overview
 
-The idea of [Pilea](https://github.com/SimonMellerin/Pilea) is to display electricity consumption and weather data on a little dashboard that allow the user to:
+The idea of [Pilea](https://gitlab.com/pilea/Pilea) is to display electricity consumption and weather data on a little dashboard that allow the user to:
 
  * Better understand his electricity consumption
  * Analyse his electricity consumption throw weather data
@@ -20,7 +20,7 @@ The idea of [Pilea](https://github.com/SimonMellerin/Pilea) is to display electr
 
 ## Screenshot
 
-![pilea startup screen](https://raw.githubusercontent.com/SimonMellerin/Pilea/master/docs/index_pilea.png)
+![pilea startup screen](https://gitlab.com/pilea/Pilea/raw/master/docs/img/dash_accueil.png)
 
 ## Configuration
 
@@ -38,7 +38,7 @@ That's it, now wait some days to see data appear !
 
 ## Documentation
 
-More information can be found on [Pilea repo](https://github.com/SimonMellerin/Pilea/)
+More information can be found on [Pilea repo](https://gitlab.com/pilea/Pilea/)
 
 ## YunoHost specific features
 
@@ -48,7 +48,7 @@ For now, Pilea doesn't support users. So all user will see the same data.
 
 ## Links
 
- * Pilea repo: https://github.com/SimonMellerin/Pilea/
+ * Pilea repo: https://gitlab.com/pilea/Pilea/
  * YunoHost website: https://yunohost.org/
 
 ---
