@@ -2,8 +2,7 @@
 
 # Source YunoHost helpers
 source /usr/share/yunohost/helpers
-source ynh_exec_as
-
+source ../scripts/ynh_exec_as
 
 # Retrieve arguments
 app=APPNAMETOCHANGE
