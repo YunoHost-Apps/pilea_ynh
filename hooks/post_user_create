@@ -6,7 +6,7 @@ source ynh_exec_as
 
 
 # Retrieve arguments
-app=__APP__
+app=APPNAMETOCHANGE
 username=$1
 final_path=$(ynh_app_setting_get "$app" final_path)
 
