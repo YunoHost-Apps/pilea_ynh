@@ -1,11 +1,11 @@
 #!/bin/bash
+app=APPNAMETOCHANGE
 
 # Source YunoHost helpers
 source /usr/share/yunohost/helpers
-source ../scripts/ynh_exec_as
+source /etc/yunohost/apps/$app/scripts/ynh_exec_as
 
 # Retrieve arguments
-app=APPNAMETOCHANGE
 username=$1
 final_path=$(ynh_app_setting_get "$app" final_path)
 
