@@ -1,3 +1,3 @@
-SOURCE_URL=https://gitlab.com/pilea/Pilea/-/archive/0.4.4/Pilea-0.4.4.tar.gz
-SOURCE_SUM=ae09340df66686231122386fd0562836d12dffe0954d7233ba0465f22854e9d0
+SOURCE_URL=https://gitlab.com/pilea/Pilea/-/archive/0.5.0/Pilea-0.5.0.tar.gz
+SOURCE_SUM=f813839553e8a8a6df5beca79fff0b770650ac4c778ab45817a3aa4c94a4d9c1
 SOURCE_FORMAT=tar.gz

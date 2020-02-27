@@ -6,9 +6,9 @@
         "en": "A little dashboard to analyse your electricity consumption data from Linky & weather",
         "fr": "Un petit tableau de bord pour analyser votre consomation d'électricité à partir des données d'un Linky et de la météo"
     },
-    "url": "https://github.com/SimonMellerin/Pilea",
+    "url": "https://gitlab.com/pilea/Pilea",
     "license": "MIT",
-    "version": "0.4.4",
+    "version": "0.5.0",
     "maintainer": {
         "name": "Simon Mellerin",
         "email": "simon.mellerin@ntymail.com"

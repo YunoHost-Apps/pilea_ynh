@@ -16,7 +16,7 @@ The idea of [Pilea](https://gitlab.com/pilea/Pilea) is to display electricity co
  * Better understand his electricity consumption
  * Analyse his electricity consumption throw weather data
 
- **Shipped version:** 0.4.4
+ **Shipped version:** 0.5.0
 
 ## Screenshot
 
@@ -50,7 +50,3 @@ For now, Pilea doesn't support users. So all user will see the same data.
 
  * Pilea repo: https://gitlab.com/pilea/Pilea/
  * YunoHost website: https://yunohost.org/
-
----
-
-*Adapted from [Wallabag2 YunoHost package](https://github.com/YunoHost-Apps/wallabag2_ynh).*
