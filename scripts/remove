@@ -69,7 +69,6 @@ ynh_script_progression --message="Removing nginx web server configuration..." --
 
 ynh_remove_nginx_config
 
-
 #=================================================
 # REMOVE DEDICATED USER
 #=================================================
