@@ -1,7 +1,7 @@
 
  Pilea for Yunohost - [English Version]
 ------------------------
-[![Integration level](https://dash.yunohost.org/integration/pilea.svg)](https://dash.yunohost.org/appci/app/pilea)
+[![Integration level](https://dash.yunohost.org/integration/pilea.svg)](https://dash.yunohost.org/appci/app/pilea) ![Status](https://ci-apps.yunohost.org/ci/badges/pilea.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/pilea.maintain.svg)
 [![Install pilea with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=pilea)
 
 > *This package allow you to install Pilea quickly and simply on a YunoHost server.
@@ -16,7 +16,7 @@ The idea of [Pilea](https://gitlab.com/pilea/Pilea) is to display electricity co
  * Better understand his electricity consumption
  * Analyse his electricity consumption throw weather data
 
- **Shipped version:** 0.3.16
+ **Shipped version:** 0.5.3
 
 ## Screenshot
 
@@ -42,15 +42,11 @@ More information can be found on [Pilea repo](https://gitlab.com/pilea/Pilea/)
 
 ## YunoHost specific features
 
-#### Multi-users support
-
-For now, Pilea doesn't support users. So all user will see the same data.
+* Integrate with YunoHost users and SSO
+* Allow one user to be the administrator (set at the installation)
+* Allow multiple instances of this application
 
 ## Links
 
  * Pilea repo: https://gitlab.com/pilea/Pilea/
  * YunoHost website: https://yunohost.org/
-
----
-
-*Adapted from [Wallabag2 YunoHost package](https://github.com/YunoHost-Apps/wallabag2_ynh).*
