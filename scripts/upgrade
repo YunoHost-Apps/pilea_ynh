@@ -65,10 +65,17 @@ ynh_abort_if_errors	# Stop script if an error is detected
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
+
+if [ "$(lsb_release --codename --short)" = "buster" ]; then
+  pkg_dependencies="$pkg_dependencies $php_additonal_packages"
+else
+  ynh_script_progression --message="Installing PHP $php_app_version..." --time --weight=3
+  ynh_install_php --phpversion="$php_app_version" --package="$php_additonal_packages"
+fi
+
 ynh_script_progression --message="Installing dependencies..." --time --weight=1
 
 ynh_install_app_dependencies $pkg_dependencies
-ynh_install_php --phpversion="$php_app_version" --package="$php_additonal_packages"
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
