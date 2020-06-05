@@ -13,6 +13,7 @@
 		setup_private=1
 		setup_public=1
 		upgrade=1
+		upgrade=1	from_commit=b27d469fb28bb9491f1f24ff687709d2cce1eb5f
 		backup_restore=1
 		multi_instance=1
 		incorrect_path=1
@@ -23,4 +24,6 @@
 ;;; Options
 Email=
 Notification=change
-manifest_arg=domain=DOMAIN&path=PATH&admin=USER&
+;;; Upgrade options
+	; commit=b27d469fb28bb9491f1f24ff687709d2cce1eb5f
+		name=0.5.3

@@ -5,100 +5,93 @@
 #=================================================
 # IMPORT GENERIC HELPERS
 #=================================================
+
 source _common.sh
-source /usr/share/yunohost/helpers
-source ynh_add_extra_apt_repo__3
 source ynh_composer__2
 source ynh_exec_as
-source ynh_install_php__3
+source /usr/share/yunohost/helpers
 
 #=================================================
 # LOAD SETTINGS
 #=================================================
-ynh_script_progression --message="Loading installation settings..." --time --weight=1
+ynh_script_progression --message="Loading installation settings..." --weight=1
 
-# Set app specific variables
 app=$YNH_APP_INSTANCE_NAME
 
-# Retrieve arguments
-domain=$(ynh_app_setting_get "$app" domain)
-path_url=$(ynh_app_setting_get "$app" path_url)
-is_public=$(ynh_app_setting_get "$app" is_public)
-admin=$(ynh_app_setting_get "$app" admin)
-
-# Compatibility with previous version
-if [ -z "$path_url" ] ; then
-  path_url=$(ynh_app_setting_get "$app" path)
-  ynh_app_setting_set $app path_url "$path_url"
-fi
-path_url=$(ynh_normalize_url_path $path_url)
-db_pwd=$(ynh_app_setting_get "$app" mysqlpwd)
-deskey=$(ynh_app_setting_get "$app" deskey)
-final_path=$(ynh_app_setting_get "$app" final_path)
-# Compatibility with previous version
-if [ -z "$final_path" ] ; then
-  final_path="/var/www/$app"
-  ynh_app_setting_set $app final_path "$final_path"
-fi
-
-db_name=$(ynh_app_setting_get "$app" db_name)
-# Compatibility with previous version
-if [ -z "$db_name" ] ; then
-  db_name=$app
-  ynh_app_setting_set "$app" db_name "$db_name"
-fi
+domain=$(ynh_app_setting_get --app=$app --key=domain)
+path_url=$(ynh_app_setting_get --app=$app --key=path_url)
+admin=$(ynh_app_setting_get --app=$app --key=admin)
+is_public=$(ynh_app_setting_get --app=$app --key=is_public)
+final_path=$(ynh_app_setting_get --app=$app --key=final_path)
+db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
+deskey=$(ynh_app_setting_get --app=$app --key=deskey)
 db_user="$db_name"
 
 #=================================================
-# MANAGE SCRIPT FAILURE
+# CHECK VERSION
 #=================================================
-ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --time --weight=1
+ynh_script_progression --message="Checking version..."
 
-# Use prior backup and restore on error only if backup feature
-# exists on installed instance
-ynh_backup_before_upgrade # Backup the current version of the app
-ynh_clean_setup () {
-    ynh_restore_upgradebackup
-}
-ynh_abort_if_errors	# Stop script if an error is detected
+upgrade_type=$(ynh_check_app_version_changed)
 
 #=================================================
-# INSTALL DEPENDENCIES
+# ENSURE DOWNWARD COMPATIBILITY
 #=================================================
+ynh_script_progression --message="Ensuring downward compatibility..."
 
-if [ "$(lsb_release --codename --short)" = "buster" ]; then
-  pkg_dependencies="$pkg_dependencies $php_additonal_packages"
-else
-  ynh_script_progression --message="Installing PHP $php_app_version..." --time --weight=3
-  ynh_install_php --phpversion="$php_app_version" --package="$php_additonal_packages"
+# Compatibility with previous version
+if [ -z "$path_url" ] ; then
+  path_url=$(ynh_app_setting_get --app="$app" --key=path)
+  ynh_app_setting_set --app=$app --key=path_url --value="$path_url"
 fi
 
-ynh_script_progression --message="Installing dependencies..." --time --weight=1
+# If db_name doesn't exist, create it
+if [ -z "$db_name" ]; then
+	db_name=$(ynh_sanitize_dbid --db_name=$app)
+	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
+fi
 
-ynh_install_app_dependencies $pkg_dependencies
+# If final_path doesn't exist, create it
+if [ -z "$final_path" ]; then
+	final_path=/var/www/$app
+	ynh_app_setting_set --app=$app --key=final_path --value=$final_path
+fi
 
+#=================================================
+# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
+#=================================================
+ynh_script_progression --message="Backing up the app before upgrading (may take a while)..."
+
+# Backup the current version of the app
+ynh_backup_before_upgrade
+ynh_clean_setup () {
+	# restore it if the upgrade fails
+	ynh_restore_upgradebackup
+}
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
+
+#=================================================
+# STANDARD UPGRADE STEPS
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
-ynh_script_progression --message="Downloading Pilea source files..." --time --weight=1
+ynh_script_progression --message="Downloading Pilea source files..." --weight=1
 
 # Create tmp directory and fetch app inside
 TMPDIR=$(mktemp -d)
-ynh_setup_source "$TMPDIR"
-
-#=================================================
-# CREATE DEDICATED USER
-#=================================================
-ynh_script_progression --message="Making sure dedicated system user exists..." --time --weight=1
-
-ynh_system_user_create $app # Create dedicated user if not existing
+ynh_setup_source --dest_dir="$TMPDIR"
 
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
-ynh_script_progression --message="Upgrading NGINX configuration..." --time --weight=1
+ynh_script_progression --message="Upgrading nginx web server configuration..." --weight=1
 
+# Create a dedicated nginx config
 ynh_add_nginx_config
+
 if [ "$path_url" = "/" ]
 then
   # Replace "//" location (due to nginx template)
@@ -108,87 +101,94 @@ else
   # Move prefix comment #for-subdir at end of lines
   sed --in-place "s/#for-subdir\(.*\)/\1 #for-subdir/g" /etc/nginx/conf.d/$domain.d/$app.conf
 fi
-ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
 
+ynh_store_file_checksum --file="/etc/nginx/conf.d/$domain.d/$app.conf"
+
+#=================================================
+# UPGRADE DEPENDENCIES
+#=================================================
+ynh_script_progression --message="Upgrading dependencies..." --weight=1
+
+ynh_install_app_dependencies $pkg_dependencies
+
+#=================================================
+# CREATE DEDICATED USER
+#=================================================
+ynh_script_progression --message="Making sure dedicated system user exists..." --weight=1
+
+# Create a dedicated user (if not existing)
+ynh_system_user_create --username=$app
 
 #=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
-ynh_script_progression --message="Upgrading php-fpm configuration..." --time --weight=2
+ynh_script_progression --message="Upgrading php-fpm configuration..." --weight=2
 
 # Create a dedicated php-fpm config
-ynh_add_fpm_config --phpversion="$php_app_version"
-
-# Make app public if necessary
-if [ $is_public -eq 1 ]
-then
-  ynh_app_setting_set $app skipped_uris "/"
-fi
+ynh_add_fpm_config --phpversion="$phpversion" --package="$extra_php_dependencies"
 
 #=================================================
 # SPECIFIC SETUP
 #=================================================
 # UPDATE DEPENDENCIES WITH COMPOSER
 #=================================================
-ynh_script_progression --message="Upgrading Composer depedencies..." --time --weight=2
+ynh_script_progression --message="Upgrading Composer depedencies..." --weight=2
 
 # Check if dependencies need to be updated with composer
 if [ -f "${TMPDIR}/composer.phar" ]; then
-  ynh_composer_exec --phpversion="$php_app_version" --workdir="${TMPDIR}" --commands="install"
+  ynh_composer_exec --phpversion="$phpversion" --workdir="${TMPDIR}" --commands="install"
 else
-  ynh_install_composer --phpversion="$php_app_version" --workdir="$TMPDIR"
+  ynh_install_composer --phpversion="$phpversion" --workdir="$TMPDIR"
 fi
 
 #=================================================
 # CONFIGURE & UPDATE PILEA
 #=================================================
-ynh_script_progression --message="Upgrading Pilea..." --time --weight=1
+ynh_script_progression --message="Upgrading Pilea..." --weight=1
 
 # Copy and set Pilea dist configuration
 pilea_conf="${TMPDIR}/.env"
 cp ../conf/.env $pilea_conf
 
-ynh_replace_string "database_name" "${db_name}" "$pilea_conf"
-ynh_replace_string "database_user" "${db_user}" "$pilea_conf"
-ynh_replace_string "database_password" "${db_pwd}" "$pilea_conf"
-ynh_replace_string "app_secret" "${deskey}" "$pilea_conf"
+ynh_replace_string --match_string="database_name" --replace_string="${db_name}" --target_file="$pilea_conf"
+ynh_replace_string --match_string="database_user" --replace_string="${db_user}" --target_file="$pilea_conf"
+ynh_replace_string --match_string="database_password" --replace_string="${db_pwd}" --target_file="$pilea_conf"
+ynh_replace_string --match_string="app_secret" --replace_string="${deskey}" --target_file="$pilea_conf"
 
 # Replace files and set permissions
-ynh_secure_remove "${final_path}"
+ynh_secure_remove --file="${final_path}"
 cp -a $TMPDIR/. "${final_path}"
-chown -R $app: "${final_path}"
-chmod 755 $final_path
 
 # Install dependencies and Pilea
 pushd $final_path
-  ynh_exec_as $app php7.3 bin/console cache:clear -n
-  ynh_exec_as $app php7.3 bin/console doctrine:migrations:migrate -n
+  ynh_exec_as $app php$phpversion bin/console cache:clear -n
+  ynh_exec_as $app php$phpversion bin/console doctrine:migrations:migrate -n
 
   # Set admin user:
   # If admin user doesn't exist, first we check if an 'admin' user exist, if so, we rename it with
   # actual admin username, else we create the admin
-  ynh_admin_exists=$(ynh_exec_as $app php7.3 bin/console pilea:user:exist "$admin")
+  ynh_admin_exists=$(ynh_exec_as $app php$phpversion bin/console pilea:user:exist "$admin")
   if [ $ynh_admin_exists -eq 0 ]
   then
-    admin_exists=$(ynh_exec_as $app php7.3 bin/console pilea:user:exist admin)
+    admin_exists=$(ynh_exec_as $app php$phpversion bin/console pilea:user:exist admin)
     user_pass=$(ynh_string_random)
     if [ $admin_exists -eq 1 ]
     then
-      ynh_exec_as $app php7.3 bin/console pilea:user:edit admin -u "$admin" -p "$user_pass" -n
+      ynh_exec_as $app php$phpversion bin/console pilea:user:edit admin -u "$admin" -p "$user_pass" -n
     else
-      ynh_exec_as $app php7.3 bin/console pilea:user:add "$admin" "$user_pass" -n
+      ynh_exec_as $app php$phpversion bin/console pilea:user:add "$admin" "$user_pass" -n
     fi
-    ynh_exec_as $app php7.3 bin/console pilea:user:grant "$admin" -n
+    ynh_exec_as $app php$phpversion bin/console pilea:user:grant "$admin" -n
   fi
 
   # Create Pilea's user
   for username in $(ynh_user_list)
   do
-    user_exists=$(ynh_exec_as $app php7.3 bin/console pilea:user:exist "$username")
+    user_exists=$(ynh_exec_as $app php$phpversion bin/console pilea:user:exist "$username")
     if [ $user_exists -eq 0 ]
     then
       user_pass=$(ynh_string_random)
-      ynh_exec_as $app php7.3 bin/console pilea:user:add "$username" "$user_pass" -n
+      ynh_exec_as $app php$phpversion bin/console pilea:user:add "$username" "$user_pass" -n
     fi
   done
 popd
@@ -199,36 +199,48 @@ cp -a ../conf/pilea.cron "$cron_path"
 chown root: "$cron_path"
 chmod 644 "$cron_path"
 
-ynh_replace_string "#USER#" "$app" "$cron_path"
-ynh_replace_string "#DESTDIR#" "$final_path" "$cron_path"
+ynh_replace_string --match_string="#USER#" --replace_string="$app" --target_file="$cron_path"
+ynh_replace_string --match_string="#DESTDIR#" --replace_string="$final_path" --target_file="$cron_path"
+
+#=================================================
+# ADAPT HOOK FOR PILEA INSTANCE
+#=================================================
+ynh_script_progression --message="Adapting hooks..." --weight=1
+ynh_replace_string --match_string="APPNAMETOCHANGE" --replace_string=$app --target_file="../hooks/post_user_create"
+ynh_replace_string --match_string="APPNAMETOCHANGE" --replace_string=$app --target_file="../hooks/post_user_delete"
+
+#=================================================
+# GENERIC FINALIZATION
+#=================================================
+# SECURE FILES AND DIRECTORIES
+#=================================================
+ynh_script_progression --message="Securing files and directories..."
+
+# Set permissions on app files
+chown -R $app: $final_path
+chmod 755 $final_path
 
 #=================================================
 # SETUP SSOWAT
 #=================================================
+ynh_script_progression --message="Upgrading SSOwat configuration..."
 
 # Make app public if necessary
 if [ $is_public -eq 1 ]
 then
   # unprotected_uris allows SSO credentials to be passed anyway
-  ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
+  ynh_app_setting_set --app=$app --key=skipped_uris --value="/"
 fi
 
 #=================================================
-# ADAPT HOOK FOR PILEA INSTANCE
+# RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Adapting hooks..." --time --weight=1
-ynh_replace_string "APPNAMETOCHANGE" $app ../hooks/post_user_create
-ynh_replace_string "APPNAMETOCHANGE" $app ../hooks/post_user_delete
-
-#=================================================
-# RELOAD NGINX AND FPM
-#=================================================
-ynh_script_progression --message="Reloading services..." --time --weight=1
+ynh_script_progression --message="Reloading nginx web server..." --weight=1
 
 ynh_systemd_action --service_name=nginx --action=reload
-ynh_systemd_action --service_name="php$php_app_version-fpm" --action=reload
 
 #=================================================
 # END OF SCRIPT
 #=================================================
-ynh_script_progression --message="Upgrade of $app completed" --time --last
+
+ynh_script_progression --message="Upgrade of $app completed" --last

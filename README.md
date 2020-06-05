@@ -1,16 +1,12 @@
+# Pilea for Yunohost
 
- Pilea for Yunohost - [English Version]
-------------------------
-[![Integration level](https://dash.yunohost.org/integration/pilea.svg)](https://dash.yunohost.org/appci/app/pilea) ![Status](https://ci-apps.yunohost.org/ci/badges/pilea.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/pilea.maintain.svg)
-[![Install pilea with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=pilea)
+[![Integration level](https://dash.yunohost.org/integration/pilea.svg)](https://dash.yunohost.org/appci/app/pilea) ![](https://ci-apps.yunohost.org/ci/badges/pilea.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/pilea.maintain.svg)  
+[![Install Pilea with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=pilea)
 
-> *This package allow you to install Pilea quickly and simply on a YunoHost server.
-If you don't have YunoHost, please see [here](https://yunohost.org/#/install) to know how to install and enjoy it.*
-
-**Please note that this app will install PHP 7.3**
+> *This package allows you to install Pilea quickly and simply on a YunoHost server.  
+If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/install) to learn how to install it.*
 
 ## Overview
-
 The idea of [Pilea](https://gitlab.com/pilea/Pilea) is to display electricity consumption and weather data on a little dashboard that allow the user to:
 
  * Better understand his electricity consumption
@@ -18,7 +14,7 @@ The idea of [Pilea](https://gitlab.com/pilea/Pilea) is to display electricity co
 
  **Shipped version:** 0.5.3
 
-## Screenshot
+## Screenshots
 
 ![pilea startup screen](https://gitlab.com/pilea/Pilea/raw/master/docs/img/dash_accueil.png)
 
@@ -46,7 +42,26 @@ More information can be found on [Pilea repo](https://gitlab.com/pilea/Pilea/)
 * Allow one user to be the administrator (set at the installation)
 * Allow multiple instances of this application
 
+#### Supported architectures
+
+* x86-64 - [![Build Status](https://ci-apps.yunohost.org/ci/logs/pilea%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/pilea/)
+* ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/pilea%20%28Apps%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/pilea/)
+
 ## Links
 
  * Pilea repo: https://gitlab.com/pilea/Pilea/
  * YunoHost website: https://yunohost.org/
+
+---
+
+Developer info
+----------------
+
+Please send your pull request to the [testing branch](https://github.com/YunoHost-Apps/pilea_ynh/tree/testing).
+
+To try the testing branch, please proceed like that.
+```
+sudo yunohost app install https://github.com/YunoHost-Apps/pilea_ynh/tree/testing --debug
+or
+sudo yunohost app upgrade pilea -u https://github.com/YunoHost-Apps/pilea_ynh/tree/testing --debug
+```
