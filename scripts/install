@@ -82,6 +82,7 @@ ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name
 ynh_script_progression --message="Setting up source files..." --weight=1
 
 ynh_app_setting_set --app=$app --key=final_path --value=$final_path
+
 # Create tmp directory and fetch app inside
 TMPDIR=$(mktemp -d)
 ynh_setup_source --dest_dir="$TMPDIR"
@@ -103,7 +104,7 @@ else
   sed --in-place "s/#for-subdir\(.*\)/\1 #for-subdir/g" /etc/nginx/conf.d/$domain.d/$app.conf
 fi
 
-ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
+ynh_store_file_checksum --file="/etc/nginx/conf.d/$domain.d/$app.conf"
 
 #=================================================
 # CREATE DEDICATED USER
@@ -119,7 +120,7 @@ ynh_system_user_create --username=$app
 ynh_script_progression --message="Configuring php-fpm..." --weight=1
 
 # Create a dedicated php-fpm config
-ynh_add_fpm_config --phpversion="${YNH_PHP_VERSION}" --package="$extra_php_dependencies"
+ynh_add_fpm_config --usage=low --footprint=low --package="$extra_php_dependencies"
 phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
@@ -148,7 +149,7 @@ ynh_replace_string --match_string="app_secret" --replace_string="${deskey}" --ta
 chmod 600 "$pilea_conf"
 
 # Install files and set permissions
-mv "$TMPDIR" "$final_path"
+mv -f "$TMPDIR" "$final_path"
 
 # Set permissions to app files
 chown -R $app: $final_path
@@ -191,7 +192,7 @@ ynh_replace_string --match_string="APPNAMETOCHANGE" --replace_string="$app" --ta
 #=================================================
 # SECURE FILES AND DIRECTORIES
 #=================================================
-ynh_script_progression --message="Securing files and directories..."
+ynh_script_progression --message="Securing files and directories..." --weight=1
 
 # Set permissions to app files
 chown -R $app: $final_path
@@ -213,6 +214,7 @@ fi
 #=================================================
 ynh_script_progression --message="Reloading nginx web server..." --weight=1
 
+ynh_systemd_action --service_name=php$phpversion-fpm --action=reload
 ynh_systemd_action --service_name=nginx --action=reload
 
 #=================================================
