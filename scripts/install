@@ -139,10 +139,10 @@ ynh_script_progression --message="Installing and configuring Pilea..." --weight=
 pilea_conf="${TMPDIR}/.env"
 cp ../conf/.env $pilea_conf
 
-ynh_replace_string --match_string="database_name" --replace_string"${db_name}" --target_file="$pilea_conf"
-ynh_replace_string --match_string="database_user" --replace_string"${db_user}" --target_file="$pilea_conf"
-ynh_replace_string --match_string="database_password" --replace_string"${db_pwd}" --target_file="$pilea_conf"
-ynh_replace_string --match_string="app_secret" --replace_string"${deskey}" --target_file="$pilea_conf"
+ynh_replace_string --match_string="database_name" --replace_string="${db_name}" --target_file="$pilea_conf"
+ynh_replace_string --match_string="database_user" --replace_string="${db_user}" --target_file="$pilea_conf"
+ynh_replace_string --match_string="database_password" --replace_string="${db_pwd}" --target_file="$pilea_conf"
+ynh_replace_string --match_string="app_secret" --replace_string="${deskey}" --target_file="$pilea_conf"
 
 # Install files and set permissions
 mv "$TMPDIR" "$final_path"
