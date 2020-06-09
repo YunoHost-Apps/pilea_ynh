@@ -144,8 +144,15 @@ ynh_replace_string --match_string="database_user" --replace_string="${db_user}" 
 ynh_replace_string --match_string="database_password" --replace_string="${db_pwd}" --target_file="$pilea_conf"
 ynh_replace_string --match_string="app_secret" --replace_string="${deskey}" --target_file="$pilea_conf"
 
+# Restrict rights to Pilea user only
+chmod 600 "$pilea_conf"
+
 # Install files and set permissions
 mv "$TMPDIR" "$final_path"
+
+# Set permissions to app files
+chown -R $app: $final_path
+chmod 755 $final_path
 
 # Install Pilea
 pushd $final_path
@@ -189,9 +196,6 @@ ynh_script_progression --message="Securing files and directories..."
 # Set permissions to app files
 chown -R $app: $final_path
 chmod 755 $final_path
-
-# Restrict rights to Pilea user only
-chmod 600 "$pilea_conf"
 
 #=================================================
 # SETUP SSOWAT

@@ -159,6 +159,10 @@ ynh_replace_string --match_string="app_secret" --replace_string="${deskey}" --ta
 ynh_secure_remove --file="${final_path}"
 cp -a $TMPDIR/. "${final_path}"
 
+# Set permissions on app files
+chown -R $app: $final_path
+chmod 755 $final_path
+
 # Install dependencies and Pilea
 pushd $final_path
   ynh_exec_as $app php$phpversion bin/console cache:clear -n
