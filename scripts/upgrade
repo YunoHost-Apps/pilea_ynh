@@ -78,11 +78,14 @@ ynh_abort_if_errors
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
-ynh_script_progression --message="Downloading Pilea source files..." --weight=1
 
-# Create tmp directory and fetch app inside
-TMPDIR=$(mktemp -d)
-ynh_setup_source --dest_dir="$TMPDIR"
+if [ "$upgrade_type" == "UPGRADE_APP" ]
+then
+	ynh_script_progression --message="Upgrading source files..."
+
+	# Download, check integrity, uncompress and patch the source from app.src
+	ynh_setup_source --dest_dir="$final_path"
+fi
 
 #=================================================
 # NGINX CONFIGURATION
@@ -109,7 +112,7 @@ ynh_store_file_checksum --file="/etc/nginx/conf.d/$domain.d/$app.conf"
 #=================================================
 ynh_script_progression --message="Upgrading dependencies..." --weight=1
 
-ynh_install_app_dependencies $pkg_dependencies
+ynh_install_app_dependencies "$pkg_dependencies"
 
 #=================================================
 # CREATE DEDICATED USER
@@ -135,19 +138,19 @@ ynh_add_fpm_config --usage=low --footprint=low --package="$extra_php_dependencie
 ynh_script_progression --message="Upgrading Composer depedencies..." --weight=2
 
 # Check if dependencies need to be updated with composer
-if [ -f "${TMPDIR}/composer.phar" ]; then
-  ynh_composer_exec --phpversion="$phpversion" --workdir="${TMPDIR}" --commands="install"
+if [ -f "$final_path/composer.phar" ]; then
+  ynh_composer_exec --phpversion="$phpversion" --workdir="$final_path" --commands="update"
 else
-  ynh_install_composer --phpversion="$phpversion" --workdir="$TMPDIR"
+  ynh_install_composer --phpversion="$phpversion" --workdir="$final_path"
 fi
 
 #=================================================
-# CONFIGURE & UPDATE PILEA
+# CONFIGURE PILEA
 #=================================================
-ynh_script_progression --message="Upgrading Pilea..." --weight=1
+ynh_script_progression --message="Configuring Pilea..." --weight=1
 
 # Copy and set Pilea dist configuration
-pilea_conf="${TMPDIR}/.env"
+pilea_conf="$final_path/.env"
 cp ../conf/.env $pilea_conf
 
 ynh_replace_string --match_string="database_name" --replace_string="${db_name}" --target_file="$pilea_conf"
@@ -155,9 +158,13 @@ ynh_replace_string --match_string="database_user" --replace_string="${db_user}" 
 ynh_replace_string --match_string="database_password" --replace_string="${db_pwd}" --target_file="$pilea_conf"
 ynh_replace_string --match_string="app_secret" --replace_string="${deskey}" --target_file="$pilea_conf"
 
-# Replace files and set permissions
-ynh_secure_remove --file="${final_path}"
-cp -a $TMPDIR/. "${final_path}"
+# Restrict rights to Pilea user only
+chmod 600 "$pilea_conf"
+
+#=================================================
+# UPGRADE PILEA
+#=================================================
+ynh_script_progression --message="Upgrading Pilea..." --weight=1
 
 # Set permissions on app files
 chown -R $app: $final_path
@@ -197,7 +204,11 @@ pushd $final_path
   done
 popd
 
-# Set up cron job
+#=================================================
+# SET UP CRON JOB
+#=================================================
+ynh_script_progression --message="Setuping a cron job..." --weight=1
+
 cron_path="/etc/cron.d/$app"
 cp -a ../conf/pilea.cron "$cron_path"
 chown root: "$cron_path"

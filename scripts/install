@@ -39,10 +39,6 @@ ynh_script_progression --message="Validating installation parameters..." --weigh
 final_path=/var/www/$app
 test ! -e "$final_path" || ynh_die --message="This path already contains a folder"
 
-path_url=$(ynh_normalize_url_path $path_url)	# Check and normalize path
-
-# Check web path availability
-ynh_webpath_available $domain $path_url
 # Register (book) web path
 ynh_webpath_register --app=$app --domain=$domain --path_url=$path_url
 
@@ -82,16 +78,15 @@ ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name
 ynh_script_progression --message="Setting up source files..." --weight=1
 
 ynh_app_setting_set --app=$app --key=final_path --value=$final_path
-
-# Create tmp directory and fetch app inside
-TMPDIR=$(mktemp -d)
-ynh_setup_source --dest_dir="$TMPDIR"
+# Download, check integrity, uncompress and patch the source from app.src
+ynh_setup_source --dest_dir="$final_path"
 
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
 ynh_script_progression --message="Configuring nginx web server..." --weight=1
 
+# Create a dedicated nginx config
 ynh_add_nginx_config
 
 if [ "$path_url" = "/" ]
@@ -130,14 +125,14 @@ phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 #=================================================
 ynh_script_progression --message="Installing Composer..." --weight=4
 
-ynh_install_composer --phpversion="$phpversion" --workdir="$TMPDIR"
+ynh_install_composer --phpversion="$phpversion" --workdir="$final_path"
 
 #=================================================
-# CONFIGURE & INSTALL PILEA
+# CONFIGURE PILEA
 #=================================================
-ynh_script_progression --message="Installing and configuring Pilea..." --weight=1
+ynh_script_progression --message="Configuring Pilea..." --weight=1
 
-pilea_conf="${TMPDIR}/.env"
+pilea_conf="$final_path/.env"
 cp ../conf/.env $pilea_conf
 
 ynh_replace_string --match_string="database_name" --replace_string="${db_name}" --target_file="$pilea_conf"
@@ -148,8 +143,10 @@ ynh_replace_string --match_string="app_secret" --replace_string="${deskey}" --ta
 # Restrict rights to Pilea user only
 chmod 600 "$pilea_conf"
 
-# Install files and set permissions
-mv -f "$TMPDIR" "$final_path"
+#=================================================
+# INSTALL PILEA
+#=================================================
+ynh_script_progression --message="Installing Pilea..." --weight=1
 
 # Set permissions to app files
 chown -R $app: $final_path
@@ -170,7 +167,11 @@ pushd $final_path
   ynh_exec_as $app php$phpversion bin/console pilea:user:grant "$admin"
 popd
 
-# Set up cron job
+#=================================================
+# SET UP CRON JOB
+#=================================================
+ynh_script_progression --message="Setuping a cron job..." --weight=1
+
 cron_path="/etc/cron.d/$app"
 cp -a ../conf/pilea.cron "$cron_path"
 chown root: "$cron_path"
