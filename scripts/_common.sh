@@ -1,4 +1,24 @@
+#!/bin/bash
+
+#=================================================
+# COMMON VARIABLES
+#=================================================
+
 # dependencies used by the app
 pkg_dependencies="apt-transport-https"
-php_app_version="7.3"
-php_additonal_packages="php7.3-zip php7.3-mysql php7.3-xml php7.3-intl php7.3-mbstring php7.3-gd php7.3-curl php7.3-bcmath php7.3-opcache php7.3-sqlite3 php7.3-ldap"
+
+YNH_PHP_VERSION="7.3"
+
+extra_php_dependencies="php${YNH_PHP_VERSION}-zip php${YNH_PHP_VERSION}-mysql php${YNH_PHP_VERSION}-xml php${YNH_PHP_VERSION}-intl php${YNH_PHP_VERSION}-mbstring php${YNH_PHP_VERSION}-gd php${YNH_PHP_VERSION}-curl php${YNH_PHP_VERSION}-bcmath php${YNH_PHP_VERSION}-opcache php${YNH_PHP_VERSION}-sqlite3 php${YNH_PHP_VERSION}-ldap"
+
+#=================================================
+# PERSONAL HELPERS
+#=================================================
+
+#=================================================
+# EXPERIMENTAL HELPERS
+#=================================================
+
+#=================================================
+# FUTURE OFFICIAL HELPERS
+#=================================================
