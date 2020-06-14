@@ -1,24 +1,25 @@
 {
-    "packaging_format": 1,
-    "id": "pilea",
     "name": "Pilea",
+    "id": "pilea",
+    "packaging_format": 1,
     "description": {
         "en": "A little dashboard to analyse your electricity consumption data from Linky & weather",
         "fr": "Un petit tableau de bord pour analyser votre consomation d'électricité à partir des données d'un Linky et de la météo"
     },
+    "version": "0.5.3~ynh1",
     "url": "https://gitlab.com/pilea/Pilea",
     "license": "MIT",
-    "version": "0.5.3",
     "maintainer": {
         "name": "Simon Mellerin",
         "email": "simon.mellerin@ntymail.com"
     },
-    "multi_instance": true,
     "requirements": {
-        "yunohost": ">= 3.0"
+        "yunohost": ">= 3.5"
     },
+    "multi_instance": true,
     "services": [
         "nginx",
+        "php7.0-fpm",
         "mysql"
     ],
     "arguments": {
