@@ -1,5 +1,5 @@
-SOURCE_URL=https://gitlab.com/pilea/Pilea/-/archive/0.5.3/Pilea-0.5.3.tar.gz
-SOURCE_SUM=8e0f25df32c046c3f1db904c75ed2771cf756306466f8e6ee447669e475044d5
+SOURCE_URL=https://gitlab.com/aeneria/aeneria-app/-/archive/0.5.5/aeneria-app-0.5.5.tar.gz
+SOURCE_SUM=cb87c4ef9db00a9b6b2beef5e48c9299ad8f80757d5311b8a814b9c742d9514a
 SOURCE_SUM_PRG=sha256sum
 SOURCE_FORMAT=tar.gz
 SOURCE_IN_SUBDIR=true

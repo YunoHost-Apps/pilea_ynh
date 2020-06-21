@@ -1,9 +1,9 @@
 # Pilea for Yunohost
 
-[![Integration level](https://dash.yunohost.org/integration/pilea.svg)](https://dash.yunohost.org/appci/app/pilea) ![](https://ci-apps.yunohost.org/ci/badges/pilea.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/pilea.maintain.svg)  
+[![Integration level](https://dash.yunohost.org/integration/pilea.svg)](https://dash.yunohost.org/appci/app/pilea) ![](https://ci-apps.yunohost.org/ci/badges/pilea.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/pilea.maintain.svg)
 [![Install Pilea with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=pilea)
 
-> *This package allows you to install Pilea quickly and simply on a YunoHost server.  
+> *This package allows you to install Pilea quickly and simply on a YunoHost server.
 If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/install) to learn how to install it.*
 
 ## Overview
@@ -12,7 +12,7 @@ The idea of [Pilea](https://gitlab.com/pilea/Pilea) is to display electricity co
  * Better understand his electricity consumption
  * Analyse his electricity consumption throw weather data
 
- **Shipped version:** 0.5.3
+ **Shipped version:** 0.5.5
 
 ## Screenshots
 
