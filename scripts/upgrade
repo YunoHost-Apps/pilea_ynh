@@ -142,7 +142,7 @@ ynh_script_progression --message="Upgrading Composer depedencies..." --weight=2
 
 # Check if dependencies need to be updated with composer
 if [ -f "$final_path/composer.phar" ]; then
-  ynh_composer_exec --phpversion="$phpversion" --workdir="$final_path" --commands="update"
+  ynh_composer_exec --phpversion="$phpversion" --workdir="$final_path" --commands="install"
 else
   ynh_install_composer --phpversion="$phpversion" --workdir="$final_path"
 fi
