@@ -18,6 +18,9 @@ ynh_script_progression --message="Loading installation settings..." --weight=1
 
 app=$YNH_APP_INSTANCE_NAME
 
+# Ensure php version is set
+ynh_app_setting_set --app=$app --key=phpversion --value=$YNH_PHP_VERSION
+
 domain=$(ynh_app_setting_get --app=$app --key=domain)
 path_url=$(ynh_app_setting_get --app=$app --key=path_url)
 admin=$(ynh_app_setting_get --app=$app --key=admin)
