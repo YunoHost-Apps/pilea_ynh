@@ -18,6 +18,9 @@ ynh_script_progression --message="Loading installation settings..." --weight=1
 
 app=$YNH_APP_INSTANCE_NAME
 
+# Ensure php version is set
+ynh_app_setting_set --app=$app --key=phpversion --value=$YNH_PHP_VERSION
+
 domain=$(ynh_app_setting_get --app=$app --key=domain)
 path_url=$(ynh_app_setting_get --app=$app --key=path_url)
 admin=$(ynh_app_setting_get --app=$app --key=admin)
@@ -139,7 +142,7 @@ ynh_script_progression --message="Upgrading Composer depedencies..." --weight=2
 
 # Check if dependencies need to be updated with composer
 if [ -f "$final_path/composer.phar" ]; then
-  ynh_composer_exec --phpversion="$phpversion" --workdir="$final_path" --commands="update"
+  ynh_composer_exec --phpversion="$phpversion" --workdir="$final_path" --commands="install"
 else
   ynh_install_composer --phpversion="$phpversion" --workdir="$final_path"
 fi
