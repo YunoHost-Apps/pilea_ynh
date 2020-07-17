@@ -1,6 +1,6 @@
-# Pilea for Yunohost
+# Pilea for YunoHost
 
-[![Integration level](https://dash.yunohost.org/integration/pilea.svg)](https://dash.yunohost.org/appci/app/pilea) ![](https://ci-apps.yunohost.org/ci/badges/pilea.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/pilea.maintain.svg)
+[![Integration level](https://dash.yunohost.org/integration/pilea.svg)](https://dash.yunohost.org/appci/app/pilea) ![](https://ci-apps.yunohost.org/ci/badges/pilea.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/pilea.maintain.svg)  
 [![Install Pilea with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=pilea)
 
 > *This package allows you to install Pilea quickly and simply on a YunoHost server.
