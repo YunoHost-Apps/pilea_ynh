@@ -6,6 +6,8 @@
 > *This package allows you to install Pilea quickly and simply on a YunoHost server.
 If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/install) to learn how to install it.*
 
+**Warning** : Due to enedis website update, Pilea is not working anymore, a new version of Pilea ([æneria](https://gitlab.com/aeneria/aeneria-app)) is under active developpement but is not fully functionnal right now. When æneria will be ready, a new package (aeneria_ynh) will be developed, due to breaking change between Pilea and æneria. Data transfer will be available for migrate from Pilea to æneria.
+
 ## Overview
 The idea of [Pilea](https://gitlab.com/pilea/Pilea) is to display electricity consumption and weather data on a little dashboard that allow the user to:
 
