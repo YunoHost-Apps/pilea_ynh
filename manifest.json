@@ -6,7 +6,7 @@
         "en": "A little dashboard to analyse your electricity consumption data from Linky & weather",
         "fr": "Un petit tableau de bord pour analyser votre consomation d'électricité à partir des données d'un Linky et de la météo"
     },
-    "version": "0.5.7~ynh1",
+    "version": "0.5.7~ynh2",
     "url": "https://gitlab.com/pilea/Pilea",
     "license": "MIT",
     "maintainer": {

@@ -1,4 +1,5 @@
-SOURCE_URL=https://gitlab.com/aeneria/aeneria-app/-/archive/0.5.5/aeneria-app-0.5.7.tar.gz
+SOURCE_URL=https://gitlab.com/aeneria/aeneria-app/-/archive/0.5.7/aeneria-app-0.5.7.tar.gz
+SOURCE_SUM=27a8d08c97d75c57992cc199194d5242597b853e45d0e99697ba4366611a6f2a
 SOURCE_SUM=27a8d08c97d75c57992cc199194d5242597b853e45d0e99697ba4366611a6f2a
 SOURCE_SUM_PRG=sha256sum
 SOURCE_FORMAT=tar.gz
