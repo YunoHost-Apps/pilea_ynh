@@ -124,18 +124,6 @@ ynh_add_fpm_config --usage=low --footprint=low --package="$extra_php_dependencie
 #=================================================
 # SPECIFIC SETUP
 #=================================================
-# UPDATE DEPENDENCIES WITH COMPOSER
-#=================================================
-ynh_script_progression --message="Upgrading Composer depedencies..." --weight=2
-
-# Check if dependencies need to be updated with composer
-if [ -f "$final_path/composer.phar" ]; then
-  ynh_composer_exec --phpversion="$phpversion" --workdir="$final_path" --commands="install"
-else
-  ynh_install_composer --phpversion="$phpversion" --workdir="$final_path"
-fi
-
-#=================================================
 # CONFIGURE PILEA
 #=================================================
 ynh_script_progression --message="Configuring Pilea..." --weight=1
@@ -151,6 +139,18 @@ ynh_replace_string --match_string="app_secret" --replace_string="${deskey}" --ta
 
 # Restrict rights to Pilea user only
 chmod 600 "$pilea_conf"
+
+#=================================================
+# UPDATE DEPENDENCIES WITH COMPOSER
+#=================================================
+ynh_script_progression --message="Upgrading Composer depedencies..." --weight=2
+
+# Check if dependencies need to be updated with composer
+if [ -f "$final_path/composer.phar" ]; then
+  ynh_composer_exec --phpversion="$phpversion" --workdir="$final_path" --commands="install"
+else
+  ynh_install_composer --phpversion="$phpversion" --workdir="$final_path"
+fi
 
 #=================================================
 # UPGRADE PILEA
