@@ -164,6 +164,7 @@ chmod 755 $final_path
 # Install dependencies and Pilea
 pushd $final_path
   ynh_exec_as $app php$phpversion bin/console cache:clear -n
+  ynh_exec_as $app php$phpversion bin/console doctrine:migrations:sync-metadata-storage -n
   ynh_exec_as $app php$phpversion bin/console doctrine:migrations:migrate -n
 
   # Set admin user:
