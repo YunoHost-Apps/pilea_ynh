@@ -1,6 +1,6 @@
-# Pilea for Yunohost
+# Pilea for YunoHost
 
-[![Integration level](https://dash.yunohost.org/integration/pilea.svg)](https://dash.yunohost.org/appci/app/pilea) ![](https://ci-apps.yunohost.org/ci/badges/pilea.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/pilea.maintain.svg)
+[![Integration level](https://dash.yunohost.org/integration/pilea.svg)](https://dash.yunohost.org/appci/app/pilea) ![](https://ci-apps.yunohost.org/ci/badges/pilea.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/pilea.maintain.svg)  
 [![Install Pilea with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=pilea)
 
 > *This package allows you to install Pilea quickly and simply on a YunoHost server.
@@ -30,7 +30,7 @@ Then, go parameter page to:
 * Fill your Enedis account and validate it
 * Choose a meteo station and validate it
 
-That's it, now wait some days to see data appear !
+That's it, now wait some days to see data appear!
 
 ## Documentation
 
@@ -54,8 +54,7 @@ More information can be found on [Pilea repo](https://gitlab.com/pilea/Pilea/)
 
 ---
 
-Developer info
-----------------
+## Developer info
 
 Please send your pull request to the [testing branch](https://github.com/YunoHost-Apps/pilea_ynh/tree/testing).
 
