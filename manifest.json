@@ -52,7 +52,7 @@
                 },
                 "default": false,
                 "help": {
-                    "en": "Be aware that installing Pilea as a public app will let everybody know your electricity consumption. Use this only if your Yunohost instance is on a local network !",
+                    "en": "Be aware that installing Pilea as a public app will let everybody know your electricity consumption. Use this only if your Yunohost instance is on a local network!",
                     "fr": "Installer Pilea en tant qu'application publique rendra accessible votre consommation d'électricité à tout le monde. N'utilisez cette option que si votre instance de Yunohost est sur un réseau local !"
                 }
             },
