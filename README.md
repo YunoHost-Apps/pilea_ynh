@@ -1,10 +1,14 @@
 # Pilea for YunoHost
 
-[![Integration level](https://dash.yunohost.org/integration/pilea.svg)](https://dash.yunohost.org/appci/app/pilea) ![](https://ci-apps.yunohost.org/ci/badges/pilea.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/pilea.maintain.svg)  
+[![Integration level](https://dash.yunohost.org/integration/pilea.svg)](https://dash.yunohost.org/appci/app/pilea) ![](https://ci-apps.yunohost.org/ci/badges/pilea.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/pilea.maintain.svg)
 [![Install Pilea with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=pilea)
 
 > *This package allows you to install Pilea quickly and simply on a YunoHost server.
 If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/install) to learn how to install it.*
+
+**Warning : Due to Enedis website update, Pilea is not working anymore.**
+A new version of Pilea (named [æneria](https://gitlab.com/aeneria/aeneria-app)) is under active developpement but is not fully functionnal right now.
+When æneria will be ready, due to breaking change between Pilea and æneria, a new yunohost package (aeneria_ynh) will be developed. Data transfer will be available in order to  migrate from Pilea to æneria.
 
 ## Overview
 The idea of [Pilea](https://gitlab.com/pilea/Pilea) is to display electricity consumption and weather data on a little dashboard that allow the user to:
@@ -12,7 +16,7 @@ The idea of [Pilea](https://gitlab.com/pilea/Pilea) is to display electricity co
  * Better understand his electricity consumption
  * Analyse his electricity consumption throw weather data
 
- **Shipped version:** 0.5.5
+ **Shipped version:** 0.5.8
 
 ## Screenshots
 

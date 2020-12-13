@@ -98,18 +98,6 @@ ynh_script_progression --message="Upgrading nginx web server configuration..." -
 # Create a dedicated nginx config
 ynh_add_nginx_config
 
-if [ "$path_url" = "/" ]
-then
-  # Replace "//" location (due to nginx template)
-  # Prevent from replacing in "http://" expressions by excluding ":" as preceding character
-  sed --in-place "s@\([^:]\)//@\1/@g" /etc/nginx/conf.d/$domain.d/$app.conf
-else
-  # Move prefix comment #for-subdir at end of lines
-  sed --in-place "s/#for-subdir\(.*\)/\1 #for-subdir/g" /etc/nginx/conf.d/$domain.d/$app.conf
-fi
-
-ynh_store_file_checksum --file="/etc/nginx/conf.d/$domain.d/$app.conf"
-
 #=================================================
 # UPGRADE DEPENDENCIES
 #=================================================
@@ -165,6 +153,18 @@ ynh_replace_string --match_string="app_secret" --replace_string="${deskey}" --ta
 chmod 600 "$pilea_conf"
 
 #=================================================
+# UPDATE DEPENDENCIES WITH COMPOSER
+#=================================================
+ynh_script_progression --message="Upgrading Composer depedencies..." --weight=2
+
+# Check if dependencies need to be updated with composer
+if [ -f "$final_path/composer.phar" ]; then
+  ynh_composer_exec --phpversion="$phpversion" --workdir="$final_path" --commands="install"
+else
+  ynh_install_composer --phpversion="$phpversion" --workdir="$final_path"
+fi
+
+#=================================================
 # UPGRADE PILEA
 #=================================================
 ynh_script_progression --message="Upgrading Pilea..." --weight=1
@@ -176,6 +176,7 @@ chmod 755 $final_path
 # Install dependencies and Pilea
 pushd $final_path
   ynh_exec_as $app php$phpversion bin/console cache:clear -n
+  ynh_exec_as $app php$phpversion bin/console doctrine:migrations:sync-metadata-storage -n
   ynh_exec_as $app php$phpversion bin/console doctrine:migrations:migrate -n
 
   # Set admin user:
@@ -246,8 +247,7 @@ ynh_script_progression --message="Upgrading SSOwat configuration..."
 # Make app public if necessary
 if [ $is_public -eq 1 ]
 then
-  # unprotected_uris allows SSO credentials to be passed anyway
-  ynh_app_setting_set --app=$app --key=skipped_uris --value="/"
+  ynh_permission_update --permission "main" --add visitors
 fi
 
 #=================================================
