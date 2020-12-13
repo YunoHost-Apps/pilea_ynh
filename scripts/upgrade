@@ -93,9 +93,9 @@ fi
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
-ynh_script_progression --message="Upgrading nginx web server configuration..." --weight=1
+ynh_script_progression --message="Upgrading NGINX web server configuration..." --weight=1
 
-# Create a dedicated nginx config
+# Create a dedicated NGINX config
 ynh_add_nginx_config
 
 #=================================================
@@ -116,25 +116,13 @@ ynh_system_user_create --username=$app
 #=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
-ynh_script_progression --message="Upgrading php-fpm configuration..." --weight=2
+ynh_script_progression --message="Upgrading PHP-FPM configuration..." --weight=2
 
-# Create a dedicated php-fpm config
+# Create a dedicated PHP-FPM config
 ynh_add_fpm_config --usage=low --footprint=low --package="$extra_php_dependencies"
 
 #=================================================
 # SPECIFIC SETUP
-#=================================================
-# UPDATE DEPENDENCIES WITH COMPOSER
-#=================================================
-ynh_script_progression --message="Upgrading Composer depedencies..." --weight=2
-
-# Check if dependencies need to be updated with composer
-if [ -f "$final_path/composer.phar" ]; then
-  ynh_composer_exec --phpversion="$phpversion" --workdir="$final_path" --commands="install"
-else
-  ynh_install_composer --phpversion="$phpversion" --workdir="$final_path"
-fi
-
 #=================================================
 # CONFIGURE PILEA
 #=================================================
@@ -253,7 +241,7 @@ fi
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading nginx web server..." --weight=1
+ynh_script_progression --message="Reloading NGINX web server..." --weight=1
 
 ynh_systemd_action --service_name=nginx --action=reload
 
