@@ -6,7 +6,7 @@
         "en": "A little dashboard to analyse your electricity consumption data from Linky & weather",
         "fr": "Un petit tableau de bord pour analyser votre consomation d'électricité à partir des données d'un Linky et de la météo"
     },
-    "version": "0.5.8~ynh3",
+    "version": "0.5.8~ynh4",
     "url": "https://gitlab.com/pilea/Pilea",
     "license": "MIT",
     "maintainer": {
@@ -14,7 +14,7 @@
         "email": "simon.mellerin@ntymail.com"
     },
     "requirements": {
-        "yunohost": ">= 3.5"
+        "yunohost": ">= 3.8.1"
     },
     "multi_instance": true,
     "services": [
@@ -52,7 +52,7 @@
                 },
                 "default": false,
                 "help": {
-                    "en": "Be aware that installing Pilea as a public app will let everybody know your electricity consumption. Use this only if your Yunohost instance is on a local network !",
+                    "en": "Be aware that installing Pilea as a public app will let everybody know your electricity consumption. Use this only if your Yunohost instance is on a local network!",
                     "fr": "Installer Pilea en tant qu'application publique rendra accessible votre consommation d'électricité à tout le monde. N'utilisez cette option que si votre instance de Yunohost est sur un réseau local !"
                 }
             },
